@@ -23,6 +23,45 @@ typedef struct nodeF{
    struct processus data;
    struct nodeF *svt;
 }nodeF;
+//liste de partitions
+typedef  node* liste;
+
+liste Listepar(){
+    srand(time(NULL));
+    int i;
+    liste L = NULL ;   //initialiser la tete a nill
+    liste p,q;
+    //creation du premier element
+    L=(node*)malloc(sizeof(node));
+
+    //remplicage de premier element
+    L->data.adr = rand() % 100 +1;
+    do{L->data.taille = (rand()%200)*10; }while(L->data.taille == 0); //si taille=0 on cherche une nouv valeur
+    L->data.etat= rand()%2 ;
+    p = L;//p pointe sur la tete
+    q = L;//q pointe sur la tete
+
+    for(i=0;i<15;i++){ //boucle de creation des elements
+             p=(node *)malloc(sizeof(node));
+             p->data.adr= q->data.adr + q->data.taille;
+              do{p->data.taille = ( rand()%200 )*10 ; }while(p->data.taille == 0);
+             p->data.etat= rand()%2;
+             q->svt = p; //chainage d'element
+             q=p;
+    }
+    p->svt = NULL; //dernier element n'a pas un svt
+    return(L);
+}
+ void affichageListepar(liste L){
+    liste p;
+    p = L;
+    while(p != NULL){
+            printf(" %d %d %d \n", p->data.adr, p->data.taille , p->data.etat);
+            p = p->svt;
+    }
+}
+
+
 
 typedef struct file{
   nodeF* tete;
@@ -33,7 +72,7 @@ typedef struct file{
 void initfile(file *f){
   f->tete=NULL;
   f->queue=NULL;
-  printf("ftete= %p \n", f->tete);
+ 
 }
 
 void enfiler(file *f , processus x ){
@@ -93,44 +132,29 @@ file createfile(){
   printf("n= %d \n", n);
   initfile(&F);
   for (int i=0; i<n ; i++ ){
-    p.id=i; printf(" i= %d   \t", i);
+    p.id=i; 
     r_ia=r_ia+( rand() % 12 + 0);
-    p.ia=r_ia ; printf("p.ia =%0.2f \n", p.ia);
+    p.ia=r_ia ; 
     r_te= rand() % 60 + 5;
     p.te=r_te;
     enfiler(&F, p);
       }
 
-
+//hello
 return (F);
 }
 
 
 int main(){
+  //partie file
    file f;
    f=createfile();
    Affichefile(f);
-
-
-
-   /* file f;
-    processus m;
-    initfile(&f);
-    printf("id, ia ,te :\n");
-    scanf("%d", &m.id);
-    scanf("%f", &m.ia);
-    scanf("%f", &m.te);
-    enfiler(&f, m);
-
-    printf("id2, ia2 ,te2: \n");
-    scanf("%d", &m.id);
-    scanf("%f", &m.ia);
-    scanf("%f", &m.te);
-    enfiler(&f, m);
-    enfiler(&f, m);
-     Affichefile(f);
-     m=TeteFile(&f);
-     printf("tete id = %d", m.id);*/
+//partie liste
+liste L;
+    L= Listepar();
+    printf("l'affichage de la liste : \n");
+    affichageListepar(L);
 
     return 0;
 }
