@@ -17,6 +17,7 @@ typedef struct processus{
    int id; //identite
    float ia;  //instant arrive
    float te; //temps execution
+   int taille;
 }processus;
 
 typedef struct nodeF{
@@ -80,6 +81,7 @@ void enfiler(file *f , processus x ){
     newf->data.id = x.id;
     newf->data.ia=x.ia;
     newf->data.te= x.te;
+    newf->data.taille=x.taille;
    newf->svt=NULL;
    if ( f->queue == NULL) {f->tete=newf; f->queue=newf;}//file vide
    else{ (f->queue)->svt=newf; f->queue=newf; };
@@ -92,6 +94,7 @@ processus defiler(file *f ){
     x.ia=((f->tete)->data).ia;
     x.id=((f->tete)->data).id;
     x.te=((f->tete)->data).te;
+    x.taille=((f->tete)->data).taille;
     f->tete=(f->tete)->svt;
     if(f->tete==NULL){ f->queue=NULL;  }
     free(temp);
@@ -115,46 +118,103 @@ void Affichefile(file f){
     initfile(&r);
     while (FileVide(&f)!=1){
         x=defiler(&f);
-        printf("id= %d  ia=%0.2f te=%0.2f \n", x.id , x.ia , x.te );
+        printf("id= %d  ia=%0.2f te=%0.2f taille= %d \n", x.id , x.ia , x.te , x.taille );
 
         enfiler(&r , x );
     }
     f=r;
 }
 
-file createfile(){
+file createfile(int * n){
   srand(time(NULL));
   float r_ia=0;
   float r_te;
   file F;
   processus p;
-  int n=rand() % 15;
-  printf("n= %d \n", n);
+   *n =rand() % 15;
+  printf("n= %d \n", *n);
   initfile(&F);
-  for (int i=0; i<n ; i++ ){
+  for (int i=0; i<*n ; i++ ){
     p.id=i; 
     r_ia=r_ia+( rand() % 12 + 0);
     p.ia=r_ia ; 
     r_te= rand() % 60 + 5;
     p.te=r_te;
+    p.taille= rand()% 200*10;
     enfiler(&F, p);
       }
-
-//hello
 return (F);
 }
+
+typedef struct tab{
+    int id;
+  struct node* affect;
+}tab;
+
+//tab * t=(tab*)malloc(sizeof(tab));
+
+void createreste(node* p , processus x ){
+ node* q=(node*)malloc(sizeof(node));
+ q->data.etat=0;
+ q->data.taille= p->data.taille - x.taille ;
+ p->data.taille= (p->data.taille)-(q->data.taille);//mise a jour taille de p
+ q->data.adr= (p->data.adr) + (p->data.taille);
+ //chainage
+ q->svt=p->svt;
+ p->svt=q;
+
+}
+
+tab* BestFit(liste L, file F , int n){
+ liste p=L;
+ file r;
+ liste pmin=NULL;//initialiser le min a la tete
+ int i=0;
+ processus x;
+ x=defiler(&F);
+ enfiler(&r, x);
+ tab *t=(tab*)malloc(n*(sizeof(tab)));
+ while (p!= NULl )//normalement i use something like boucle pour cuz i know num of elements
+ { x=defiler(&F);
+   enfiler(&r, x);  
+  if( p->data.etat== 1 ){ p= p->svt; }//occupe
+    else{ 
+          if(p->data.taille< x.taille){p= p->svt;}//espace insuffisant
+          else{//espace libre et suffisant
+             if(pmin==NULL){pmin=p;}//le premier element suffisant et libre
+             else{//deja trouve un premier elem suffisant, cherche le plus petit residus
+             if((p->data.taille)<(pmin->data.taille)){pmin=p;} 
+             }
+
+          }
+    }
+   if(pmin!= NULL){ t[i].id=x.id; t[i].affect=pmin; i++; //affectation 
+                  pmin->data.etat=2;//2 c'etait libre et ca devient occupe
+                  if ((pmin->data.taille)>x.taille ){createreste( pmin , x );}
+                  }   
+ 
+ }
+ F=r;
+return (t);
+}
+
+
+
+
 
 
 int main(){
   //partie file
+   int n;
    file f;
-   f=createfile();
+   f=createfile(&n);
    Affichefile(f);
 //partie liste
 liste L;
     L= Listepar();
     printf("l'affichage de la liste : \n");
     affichageListepar(L);
-
+ BestFit(L, f, n);
+ affichageListepar(L);
     return 0;
 }
