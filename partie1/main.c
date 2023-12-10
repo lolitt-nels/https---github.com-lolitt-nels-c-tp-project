@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <unistd.h>
 
 typedef struct partition{
     int adr;
@@ -38,7 +39,7 @@ liste Listepar(){
     //remplicage de premier element
     L->data.adr = rand() % 100 +1;
     do{L->data.taille = (rand()%200)*10; }while(L->data.taille == 0); //si taille=0 on cherche une nouv valeur
-    L->data.etat= rand()%2 ;
+    L->data.etat= 0;
     p = L;//p pointe sur la tete
     q = L;//q pointe sur la tete
 
@@ -126,16 +127,14 @@ void Affichefile(file f){
     f=r;
 }
 
-file createfile(int * n){
+file createfile(int n){
   srand(time(NULL));
   float r_ia=0;
   float r_te;
   file F;
   processus p;
-   *n =rand() % 15 +5;
-  printf("n= %d \n", *n);
-  initfile(&F);
-  for (int i=0; i<*n ; i++ ){
+   initfile(&F);
+  for (int i=1; i<=n ; i++ ){
     p.id=i;
     r_ia=r_ia+( rand() % 12 + 0);
     p.ia=r_ia ;
@@ -195,14 +194,14 @@ tab* BestFit(liste L, file *F , int n , file *h){
    if(pmin!= NULL){
                    t[c].id=x.id; t[c].affect=pmin; printf("tc id = %d  tc affect= %p \n", t[c].id , t[c].affect);
                    //affectation
-                  pmin->data.etat=2;//2 c'etait libre et ca devient occupe
+                  pmin->data.etat=1;//1 c  occupe
                   if ((pmin->data.taille)>x.taille ){
                         createreste( pmin , x );}
                   }
   if(pmin==NULL){ enfiler(F, x);  }
   i++;
  }
-t[c].id=1000; t[c].affect=NULL;
+t[c].id=0; t[c].affect=NULL;
 return (t);
 }
 
@@ -226,7 +225,7 @@ tab* Firstfit(liste L, file *F , int n , file *h){
      if( (p->data.etat== 0 ) && ((p->data.taille)>=x.taille) ){
             t[c].id=x.id; t[c].affect=p; c++; printf("tc id = %d  tc affect= %p \n", t[c].id , t[c].affect);//affectation
             trouve=1;
-           p->data.etat=2;
+           p->data.etat=1;
              if ((p->data.taille)>x.taille ){createreste( p , x );}
           }
    p=p->svt;
@@ -234,12 +233,12 @@ tab* Firstfit(liste L, file *F , int n , file *h){
    if (trouve==0){enfiler(F, x);}
    i++;
  }
-t[c].id=1000; t[c].affect=NULL;
+t[c].id=0; t[c].affect=NULL;
 return(t);
 
 }
 
-tab* WorstFit(liste L, file *F , int n , file *h){
+tab* WorstFit(liste L, file *F , int n , file *h, int *c){
  liste p;
  int i=0;
  file r;
@@ -248,9 +247,9 @@ tab* WorstFit(liste L, file *F , int n , file *h){
  p=L;printf("p= %p", p);
  initfile(h);
  initfile(&r);
- int c=0;
- tab *t=(tab*)malloc(n*(sizeof(tab))); printf("creena la table\n");
- while( i<n )//normalement i use something like boucle pour cuz i know num of elements
+ *c=0;
+ tab *t=(tab*)malloc(n*(sizeof(tab)));
+ while( i<n )
  { x=defiler(F);  printf("defilina w enfilina \n");
    enfiler(h, x);
     pmax=NULL;
@@ -266,27 +265,67 @@ tab* WorstFit(liste L, file *F , int n , file *h){
     p=p->svt;
    }
    if(pmax!= NULL){
-                   t[c].id=x.id; t[c].affect=pmax; printf("tc id = %d  tc affect= %p \n", t[c].id , t[c].affect);
+                   t[*c].id=x.id; t[*c].affect=pmax; printf("tc id = %d  tc affect= %p \n", t[*c].id , t[*c].affect);
                    //affectation
-                  pmax->data.etat=2;//2 c'etait libre et ca devient occupe
+                  pmax->data.etat=1;//1 devient occupe
                   if ((pmax->data.taille)>x.taille ){
                         createreste( pmax , x );}
                   }
   if(pmax==NULL){ enfiler(F, x);  }
    i++;
    }
-   t[c].id=1000; t[c].affect=NULL;
+   t[*c].id=0; t[*c].affect=NULL;
 return (t);
 }
 
 
-void affichtab(tab *t){
-  int j=0; printf("on rentre");
-
-     printf("tc id = %d  tc affect= %p \n", t[j].id , t[j].affect);
-  j++;
+/*void affichtab(tab *t , int c ){
+   printf("on rentre");
+  for(int j=0 ; j<c ;j++){
+        printf("deja");
+     printf("tc id = %d  tc affect= %p \n", t[c].id, t[c].affect);
+      j++;
   }
+}*/
+
+//on lui donne un element du tableau elle le remet a nul , et prend l'adress de partition et la remt a libre et decale touut pour supprimer l'elem du tableau
+void supress(tab *e, int jpos, liste L, int *g){
+    node* p;
+    p=e[jpos].affect;
+
+    node *q=L;
+    while(q!= p){ //pas besoin de null vue queforcement adress existe dans table
+        q=q->svt;
+        }
+        q->data.etat=0;
+
+    // Décaler les éléments après l'index
+    for (int i = jpos; i < *g - 1; i++) {
+        e[i] = e[i + 1];
+    }
+
+    // Réduire la taille du vecteur
+    (*g)--;
+
+//maybe need to put *L for change to occur?
 }
+
+int rech_ptit_id(tab* t, int g){
+       tab* ta=t;
+       int j=1;
+       int jpos=0;
+       int min=ta[0].id;
+       while(j<g){
+        if(ta[j].id<min){min=ta[j].id ; jpos=j; }
+        j++;
+        }
+return(jpos);
+}
+
+
+
+//rearanger c faire une sorte de decalage te3 les partition apres chaque supression
+
 
 
 
@@ -298,7 +337,10 @@ int main(){
    file f;
    file *h;
    tab* m;
-   f=createfile(&n);
+   int g;
+   printf("donnez n \n");
+   scanf("%d", &n);
+   f=createfile(n);
    Affichefile(f);
 //partie liste
 liste L;
@@ -307,13 +349,23 @@ liste L;
     affichageListepar(L);
  //BestFit(L, &f, n , h);
  //Firstfit(L, &f, n, h);
- m=WorstFit(L, &f, n, h);
+ m=WorstFit(L, &f, n, h , &g);
  affichageListepar(L);
  printf("f jdida\n");
  Affichefile(f);
  printf("h jidida\n");
   Affichefile(*h);
-//  affichtab(m);
+//affichtab(m , g);
+
+//this code allows the function to start once the user presses a button
+
+/*printf("Let the Battle Begin!\n");
+printf("Press Any Key to Continue\n");
+getchar();*/
+//hna we start timer supress and rearange
+
+
+
     return 0;
 }
 
