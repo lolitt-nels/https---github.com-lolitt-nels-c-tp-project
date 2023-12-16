@@ -148,7 +148,8 @@ return (F);
 
 typedef struct tab{
     int id;
-  struct node* affect;
+    struct node* affect;
+    struct tab* svt;
 }tab;
 
 //tab * t=(tab*)malloc(sizeof(tab));
@@ -168,14 +169,12 @@ void createreste(node* p , processus x ){
 tab* BestFit(liste L, file *F , int n , file *h){
  liste p;
  int i=0;
- file r;
  liste pmin;
  processus x; printf("l= %p", L);
  p=L;printf("p= %p", p);
  initfile(h);
- initfile(&r);
- tab *t=(tab*)malloc(n*(sizeof(tab))); printf("creena la table\n");
- int c=0;
+ tab* T=NULL;
+ tab* Q=NULL;
  while(i<n )//normalement i use something like boucle pour cuz i know num of elements
  { x=defiler(F);  printf("defilina w enfilina \n");
    enfiler(h, x);
@@ -183,26 +182,25 @@ tab* BestFit(liste L, file *F , int n , file *h){
    p=L;
    while(p!=NULL){
     if( (p->data.etat== 0 ) && ((p->data.taille)>=x.taille) ){
-        if(pmin==NULL){pmin=p;  }
-        else{
-            if((p->data.taille)< (pmin->data.taille)){pmin=p;}
+        if(pmin==NULL){pmin=p;   }
+        if(pmin!=NULL &&((p->data.taille)<=(pmin->data.taille))){pmin=p; }
         }
 
+       p=p->svt;
     }
-    p=p->svt;
-   }
+
    if(pmin!= NULL){
-                   t[c].id=x.id; t[c].affect=pmin; printf("tc id = %d  tc affect= %p \n", t[c].id , t[c].affect);
+         Q=(tab*)malloc(sizeof(tab));
+                   Q->id=x.id; Q->affect=pmin; printf("tc id = %d  tc affect= %p \n", Q->id , Q->affect);
+                   Q->svt=T; T=Q;
                    //affectation
-                  pmin->data.etat=1;//1 c  occupe
-                  if ((pmin->data.taille)>x.taille ){
+                  pmin->data.etat=1;   //1 c  occupe
+                if ((pmin->data.taille)>x.taille ){
                         createreste( pmin , x );}
                   }
   if(pmin==NULL){ enfiler(F, x);  }
-  i++;
- }
-t[c].id=0; t[c].affect=NULL;
-return (t);
+ i++;}
+return (T);
 }
 
 tab* Firstfit(liste L, file *F , int n , file *h){
@@ -214,8 +212,8 @@ tab* Firstfit(liste L, file *F , int n , file *h){
  initfile(h);
  initfile(&r);
  int trouve;
- tab *t=(tab*)malloc(n*(sizeof(tab))); printf("creena la table\n");
- int c=0;
+  tab* T=NULL;
+ tab* Q=NULL;
  while( i<n )//normalement i use something like boucle pour cuz i know num of elements
 { x=defiler(F);  printf("defilina w enfilina \n");
    enfiler(h, x);
@@ -223,7 +221,9 @@ tab* Firstfit(liste L, file *F , int n , file *h){
    trouve=0;
    while(p!=NULL && trouve==0){
      if( (p->data.etat== 0 ) && ((p->data.taille)>=x.taille) ){
-            t[c].id=x.id; t[c].affect=p; c++; printf("tc id = %d  tc affect= %p \n", t[c].id , t[c].affect);//affectation
+             Q=(tab*)malloc(sizeof(tab));
+                   Q->id=x.id; Q->affect=p; printf("tc id = %d  tc affect= %p \n", Q->id , Q->affect);
+                   Q->svt=T; T=Q;//affectation
             trouve=1;
            p->data.etat=1;
              if ((p->data.taille)>x.taille ){createreste( p , x );}
@@ -233,12 +233,12 @@ tab* Firstfit(liste L, file *F , int n , file *h){
    if (trouve==0){enfiler(F, x);}
    i++;
  }
-t[c].id=0; t[c].affect=NULL;
-return(t);
+
+return(T);
 
 }
 
-tab* WorstFit(liste L, file *F , int n , file *h, int *c){
+tab* WorstFit(liste L, file *F , int n , file *h){
  liste p;
  int i=0;
  file r;
@@ -247,8 +247,8 @@ tab* WorstFit(liste L, file *F , int n , file *h, int *c){
  p=L;printf("p= %p", p);
  initfile(h);
  initfile(&r);
- *c=0;
- tab *t=(tab*)malloc(n*(sizeof(tab)));
+ tab* T=NULL;
+ tab* Q=NULL;
  while( i<n )
  { x=defiler(F);  printf("defilina w enfilina \n");
    enfiler(h, x);
@@ -265,8 +265,9 @@ tab* WorstFit(liste L, file *F , int n , file *h, int *c){
     p=p->svt;
    }
    if(pmax!= NULL){
-                   t[*c].id=x.id; t[*c].affect=pmax; printf("tc id = %d  tc affect= %p \n", t[*c].id , t[*c].affect);
-                   //affectation
+               Q=(tab*)malloc(sizeof(tab));
+                   Q->id=x.id; Q->affect=p; printf("tc id = %d  tc affect= %p \n", Q->id , Q->affect);
+                   Q->svt=T; T=Q;//affectation
                   pmax->data.etat=1;//1 devient occupe
                   if ((pmax->data.taille)>x.taille ){
                         createreste( pmax , x );}
@@ -274,52 +275,48 @@ tab* WorstFit(liste L, file *F , int n , file *h, int *c){
   if(pmax==NULL){ enfiler(F, x);  }
    i++;
    }
-   t[*c].id=0; t[*c].affect=NULL;
-return (t);
+return (T);
 }
 
 
-/*void affichtab(tab *t , int c ){
+void affichtab(tab *T  ){
+   tab* q=T;
    printf("on rentre");
-  for(int j=0 ; j<c ;j++){
-        printf("deja");
-     printf("tc id = %d  tc affect= %p \n", t[c].id, t[c].affect);
-      j++;
+   if(q==NULL){printf("tab est vide");}
+   while(q!=NULL){
+        printf("id= %d  est affecte a %p  \n", q->id, q->affect);
+        q=q->svt;
+   }
   }
-}*/
 
+//avant dupress pointer=L
 //on lui donne un element du tableau elle le remet a nul , et prend l'adress de partition et la remt a libre et decale touut pour supprimer l'elem du tableau
-void supress(tab *e, int jpos, liste L, int *g){
-    node* p;
-    p=e[jpos].affect;
-
-    node *q=L;
+void supress(tab *e, liste L){
+    node*p= e->affect;
+    node* q =L;
     while(q!= p){ //pas besoin de null vue queforcement adress existe dans table
         q=q->svt;
         }
-        q->data.etat=0;
-
-    // Décaler les éléments après l'index
-    for (int i = jpos; i < *g - 1; i++) {
-        e[i] = e[i + 1];
-    }
-
-    // Réduire la taille du vecteur
-    (*g)--;
-
+        if(q!=NULL){q->data.etat=0;}
 //maybe need to put *L for change to occur?
 }
 
-int rech_ptit_id(tab* t, int g){
-       tab* ta=t;
-       int j=1;
-       int jpos=0;
-       int min=ta[0].id;
-       while(j<g){
-        if(ta[j].id<min){min=ta[j].id ; jpos=j; }
-        j++;
-        }
-return(jpos);
+tab* rech_ptit_id(tab* T){
+       tab* q;
+       tab* p=T;
+       tab* pmin=T;
+       while(p!=NULL){
+        if(p->id<pmin->id){pmin=p;}
+        p=p->svt;
+        } p=T;
+        q=T;
+      while(p!=NULL&& p!=pmin){
+        q=p; p=p->svt;
+      }
+       if(p==T){T=T->svt; p->svt=NULL;}
+       else{q->svt=p->svt; p->svt=NULL;}
+
+return(p);
 }
 
 
@@ -337,7 +334,6 @@ int main(){
    file f;
    file *h;
    tab* m;
-   int g;
    printf("donnez n \n");
    scanf("%d", &n);
    f=createfile(n);
@@ -347,15 +343,22 @@ liste L;
     L= Listepar();
     printf("l'affichage de la liste : \n");
     affichageListepar(L);
- //BestFit(L, &f, n , h);
- //Firstfit(L, &f, n, h);
- m=WorstFit(L, &f, n, h , &g);
+    h->queue=NULL;
+    h->tete=NULL;
+ m=BestFit(L, &f, n , h);
+ //m=Firstfit(L, &f, n, h);
+ //m=WorstFit(L, &f, n, h );
  affichageListepar(L);
  printf("f jdida\n");
  Affichefile(f);
  printf("h jidida\n");
   Affichefile(*h);
-//affichtab(m , g);
+affichtab(m );
+
+tab* e=rech_ptit_id(m);
+supress(e, L);
+affichtab(m );
+affichageListepar(L);
 
 //this code allows the function to start once the user presses a button
 
