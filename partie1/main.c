@@ -67,10 +67,10 @@ typedef struct fileP{
 typedef struct elem{
 int prio;
 struct fileP F;
-struct elem svt;
-}pile;
+struct elem* svt;
+}elem;
 
-typedef elem* Pile;
+typedef  elem* Pile;
 
 // Initialiser la pile (créer une pile vide)
 void InitPile(Pile* pile) {
@@ -87,7 +87,7 @@ int PileVide(Pile pile) {
 
 
 // Empiler un élément sur la pile
-void Empiler(Pile* pile, fileP f, int a) {
+void Empiler(Pile* pile, fileP f, int n) {
     elem* nouvelElem = (elem*)malloc(sizeof(elem));
     nouvelElem->prio=n;
     nouvelElem->F.queue=f.queue;
@@ -97,16 +97,12 @@ void Empiler(Pile* pile, fileP f, int a) {
 }
 
 // Dépiler un élément de la pile
-fileP Depiler(Pile* pile) {
-    if (PileVide(*pile)) {
-        printf("Erreur : La pile est vide\n");
-        return -1;
-    }
+fileP Depiler(Pile pile) {
      fileP f;
-     f.queue=(*pile)->queue;
-     f.tete=(*pile)->tete;
-    elem* temp = *pile;
-    *pile = (*pile)->svt;
+     f.queue= (pile->F).queue;
+     f.tete=pile->F.tete;
+    elem* temp = pile;
+    pile = pile->svt;
     free(temp);
     return f;
 }
@@ -114,10 +110,6 @@ fileP Depiler(Pile* pile) {
 
 // Obtenir le sommet de la pile sans le dépiler
 elem SommetPile(Pile* pile) {
-    if (PileVide(*pile)) {
-        printf("Erreur : La pile est vide\n");
-        return -1;
-    }
      elem r;
      r.F.tete=(*pile)->F.tete;
      r.F.queue=(*pile)->F.queue;
@@ -491,4 +483,3 @@ getchar();*/
 
     return 0;
 }
-
