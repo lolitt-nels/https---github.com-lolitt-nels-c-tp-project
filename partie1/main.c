@@ -87,3 +87,8 @@ if(p==q) {q = q->svt; printf("we changed cuz libre\n");}
     }
 }
 */
+
+
+/*decalage(L, m);
+  affichageListepar(L);
+ affichtab(m );*/
