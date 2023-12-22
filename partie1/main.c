@@ -1,3 +1,4 @@
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -92,15 +93,26 @@ int PileVide(Pile pile) {
 
 
 // Empiler un élément sur la pile
-void Empiler(Pile* pile, fileP f, int n) {
-    elem* nouvelElem = (elem*)malloc(sizeof(elem));
-    nouvelElem->prio=n;
-    nouvelElem->F.queue=f.queue;
-    nouvelElem->F.tete=f.tete;
-    nouvelElem->svt = *pile;
-    *pile = nouvelElem;
+void Empiler(Pile * pile,fileP f, int n) {
+    elem* nouvelElem = (elem*)malloc(sizeof(elem)); printf("newele adress =%p\n", nouvelElem);
+    nouvelElem->prio=n; printf("newele prio =%d", nouvelElem->prio);
+   nouvelElem->F.queue=f.queue;
+   nouvelElem->F.tete=f.tete;printf("newele tete=%p \t", nouvelElem->F.tete);
+    nouvelElem->svt = *pile ;
+    printf("pile = %p et  newele svt  =%p\n", pile, nouvelElem->svt);
+    *pile = nouvelElem ; printf("npile adress =%p \n", pile);
 }
 
+/*void Empiler(elem * pile, int n) {
+    elem* nouvelElem = (elem*)malloc(sizeof(elem)); printf("newele adress =%p\n", nouvelElem);
+    nouvelElem->prio=n; printf("newele prio =%d", nouvelElem->prio);
+   nouvelElem->F.queue=NULL;
+   nouvelElem->F.tete=NULL;printf("newele tete=%p \t", nouvelElem->F.tete);
+    nouvelElem->svt = pile ;
+    printf("pile = %p et  newele svt  =%p\n", &pile, nouvelElem->svt);
+    pile = nouvelElem ; printf("npile adress =%p", pile);
+}
+*/
 // Dépiler un élément de la pile
 fileP Depiler(Pile pile) {
      fileP f;
@@ -578,7 +590,7 @@ getchar();*/
 //partie pile et files
 
 fileP g;
-
+/*
 initfileP(&g);
 printf("donnez le nombre de processes\n");
 int nbr;
@@ -586,8 +598,28 @@ scanf("%d", &nbr);
 int j=1;
 g=createfileP(nbr, j);
 AffichefileP(g);
+*/
+
+Pile pile;
+InitPile(&pile);
+printf("pile vide= %d \n \n", PileVide(pile));
+for(int k=1;k<=3;k++){
+  printf("donnez le nombre de processes de priorite %d \n", k);
+  int nbr;
+  scanf("%d", &nbr);
+  //fileP placeholder;
+g=createfileP(nbr, k);
+AffichefileP(g);
+//placeholder.queue=g.queue;
+//placeholder.tete=g.tete;
+printf("g.tete= %p et g.queu= %p \n", g.tete, g.queue);
+Empiler(&pile,g, k);
+printf("dans main pile= %p", pile);
+printf("pile vide= %d \n \n", PileVide(pile));
 
 
+
+}
 
 
     return 0;
