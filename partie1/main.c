@@ -103,25 +103,28 @@ void Empiler(Pile * pile,fileP f, int n) {
     *pile = nouvelElem ; printf("npile adress =%p \n", pile);
 }
 
-/*void Empiler(elem * pile, int n) {
-    elem* nouvelElem = (elem*)malloc(sizeof(elem)); printf("newele adress =%p\n", nouvelElem);
-    nouvelElem->prio=n; printf("newele prio =%d", nouvelElem->prio);
-   nouvelElem->F.queue=NULL;
-   nouvelElem->F.tete=NULL;printf("newele tete=%p \t", nouvelElem->F.tete);
-    nouvelElem->svt = pile ;
-    printf("pile = %p et  newele svt  =%p\n", &pile, nouvelElem->svt);
-    pile = nouvelElem ; printf("npile adress =%p", pile);
-}
-*/
 // Dépiler un élément de la pile
-fileP Depiler(Pile pile) {
-     fileP f;
-     f.queue= (pile->F).queue;
-     f.tete=pile->F.tete;
-    elem* temp = pile;
-    pile = pile->svt;
+elem Depiler(Pile* pile) {
+     elem f;
+     f.F.queue= (*pile)->F.queue;
+     f.F.tete=(*pile)->F.tete;
+     f.prio=(*pile)->prio;
+    elem* temp = *pile;
+    *pile = (*pile)->svt;
     free(temp);
     return f;
+}
+
+void affichepile(Pile p){
+     Pile r;
+     elem x;
+     InitPile(&r);
+     while(!PileVide(p)){
+        x=Depiler(&p);
+        printf("x.prio=%d , x.F.tete= %p , x.F.queu=%p ", x.prio, x.F.tete ,x.F.queue);
+        Empiler(&r, x.F , x.prio);
+     }
+     p=r;
 }
 
 
@@ -618,8 +621,9 @@ printf("dans main pile= %p", pile);
 printf("pile vide= %d \n \n", PileVide(pile));
 
 
-
 }
+
+affichepile(pile);
 
 
     return 0;
