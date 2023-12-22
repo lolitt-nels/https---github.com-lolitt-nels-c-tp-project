@@ -1,7 +1,6 @@
 void decalage(liste L,tab * T){
     node * q;
     node * p;
-
     tab * t;
     q = L;
     p = L;
