@@ -1,3 +1,4 @@
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -71,6 +72,8 @@ struct elem* svt;
 }elem;
 
 typedef  elem* Pile;
+
+
 
 
 ///////////////////////////////////////////////////////////functions part 2/////////////////////////////////////////////////////////
@@ -228,10 +231,91 @@ return (F);
 }
 
 
+void createreste2(node* p , process x ){
+ node* q=(node*)malloc(sizeof(node)); printf("creation node rest \t");
+ q->data.etat=0;
+ q->data.taille= p->data.taille - x.taille ;
+ p->data.taille= x.taille;//mise a jour taille de p
+ q->data.adr= (p->data.adr) + (p->data.taille);
+ //chainage
+ q->svt=p->svt;
+ p->svt=q;
+
+}
 
 
+tab* FirstfitP(liste L, fileP *F , int n , fileP *h){
+ liste p;
+ int i=0;
+ fileP r;
+ process x; printf("l= %p", L);
+ p=L;printf("p= %p", p);
+ initfileP(h);
+ initfileP(&r);
+ int trouve;
+  tab* T=NULL;
+ tab* Q=NULL; printf("t= %p", T);
+ while( i<n )//normalement i use something like boucle pour cuz i know num of elements
+{ x=defilerP(F);  printf("defilina w enfilina \n");
+   enfilerP(h, x);
+   p=L;
+   trouve=0;
+   while(p!=NULL && trouve==0){
+     if( (p->data.etat== 0 ) && ((p->data.taille)>=x.taille) ){
+             Q=(tab*)malloc(sizeof(tab));
+                   Q->id=x.id; Q->affect=p; printf("tc id = %d  tc affect= %p \n", Q->id , Q->affect);
+                   Q->svt=T; T=Q;//affectation
+            trouve=1;
+           p->data.etat=1;
+             if ((p->data.taille)>x.taille ){createreste2( p , x );}
+          }
+   p=p->svt;
+   }
+   if (trouve==0){enfilerP(F, x);}
+   i++;
+ }
+
+return(T);
+
+}
 
 
+tab* BestFit2(liste L, fileP *F , int n , fileP *h){
+ liste p;
+ int i=0;
+ liste pmin;
+ process x; printf("l= %p", L);
+ p=L;printf("p= %p", p);
+ initfileP(h);
+ tab* T=NULL;
+ tab* Q=NULL;
+ while(i<n )//normalement i use something like boucle pour cuz i know num of elements
+ { x=defilerP(F);  printf("defilina w enfilina \n");
+   enfilerP(h, x);
+    pmin=NULL;      //initialiser min
+   p=L;
+   while(p!=NULL){
+    if( (p->data.etat== 0 ) && ((p->data.taille)>=x.taille) ){
+        if(pmin==NULL){pmin=p;   }
+        if(pmin!=NULL &&((p->data.taille)<=(pmin->data.taille))){pmin=p; }
+        }
+
+       p=p->svt;
+    }
+
+   if(pmin!= NULL){
+         Q=(tab*)malloc(sizeof(tab));
+                   Q->id=x.id; Q->affect=pmin; printf("tc id = %d  tc affect= %p \n", Q->id , Q->affect);
+                   Q->svt=T; T=Q;
+                   //affectation
+                  pmin->data.etat=1;   //1 c  occupe
+                if ((pmin->data.taille)>x.taille ){
+                        createreste2( pmin , x );}
+                  }
+  if(pmin==NULL){ enfilerP(F, x);  }
+ i++;}
+return (T);
+}
 
 
 
@@ -600,7 +684,9 @@ getchar();*/
 //partie pile et files
 
 fileP g;
-/*
+fileP h;
+tab* u=NULL;
+initfileP(&h);
 initfileP(&g);
 printf("donnez le nombre de processes\n");
 int nbr;
@@ -608,9 +694,13 @@ scanf("%d", &nbr);
 int j=1;
 g=createfileP(nbr, j);
 AffichefileP(g);
-*/
+//u=FirstfitP(L, &g, nbr, &h);
+u=FirstfitP(L, &g, nbr, &h);
+affichtab(u);
 
-Pile pile;
+
+
+/*Pile pile;
 InitPile(&pile);
 printf("pile vide= %d \n \n", PileVide(pile));
 for(int k=1;k<=3;k++){
@@ -630,7 +720,7 @@ printf("pile vide= %d \n \n", PileVide(pile));
 
 }
 
-affichepile(pile);
+affichepile(pile);*/
 
 
     return 0;
