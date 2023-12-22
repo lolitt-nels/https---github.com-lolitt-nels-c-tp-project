@@ -1,4 +1,3 @@
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -115,17 +114,10 @@ elem Depiler(Pile* pile) {
     return f;
 }
 
-void affichepile(Pile p){
-     Pile r;
-     elem x;
-     InitPile(&r);
-     while(!PileVide(p)){
-        x=Depiler(&p);
-        printf("x.prio=%d , x.F.tete= %p , x.F.queu=%p ", x.prio, x.F.tete ,x.F.queue);
-        Empiler(&r, x.F , x.prio);
-     }
-     p=r;
-}
+
+
+
+
 
 
 // Obtenir le sommet de la pile sans le dépiler
@@ -200,6 +192,20 @@ void AffichefileP(fileP f){
     f=r;
 }
 
+void affichepile(Pile p){
+     Pile r;
+     elem x;
+     InitPile(&r);
+     while(!PileVide(p)){
+        x=Depiler(&p);
+        printf("x.prio=%d , x.F.tete= %p , x.F.queu=%p ", x.prio, x.F.tete ,x.F.queue);
+        Empiler(&r, x.F , x.prio);
+        printf("la file est : \n");
+        AffichefileP(x.F);
+     }
+     p=r;
+}
+
 fileP createfileP(int n, int j){
   srand(time(NULL));
   float r_ia=0;
@@ -220,6 +226,7 @@ fileP createfileP(int n, int j){
       }
 return (F);
 }
+
 
 
 
