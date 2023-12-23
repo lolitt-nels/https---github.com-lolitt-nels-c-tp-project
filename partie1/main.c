@@ -341,7 +341,7 @@ tab* WorstFit2(liste L, fileP *F , int n , fileP *h){ //j'ai changé les paramet
    }
    if(pmax!= NULL){
                Q=(tab*)malloc(sizeof(tab));
-                   Q->id=x.id; Q->affect=pmax; printf("tc id = %d  tc affect= %p \n", Q->id , Q->affect);
+                   Q->id=x.id; Q->affect=p; printf("tc id = %d  tc affect= %p \n", Q->id , Q->affect);
                    Q->svt=T; T=Q;//affectation
                   pmax->data.etat=1;//1 devient occupe
                   if ((pmax->data.taille)>x.taille ){
@@ -637,7 +637,7 @@ void supress(tab *e, liste L){
         q=q->svt;
         }
         if(q!=NULL){q->data.etat=0;}
-        //supprimer l'element
+        free(e);
 //maybe need to put *L for change to occur?
 }
 
@@ -789,6 +789,23 @@ printf("pile vide= %d \n \n", PileVide(pile));
 }
 
 affichepile(pile);*/
+
+
+/* while tab non vide
+
+rech ptit id, prendre x.te ->dakhel sleep();
+supress
+decalage (affichage tab et liste)
+si non file vide(F) {use same politique};
+*/
+
+
+
+
+
+
+
+
 
 
     return 0;
