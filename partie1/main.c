@@ -415,6 +415,44 @@ tab* BestFit2(liste L, fileP *F , int n , fileP *h){
 return (T);
 }
 
+tab* WorstFit2(liste L, fileP *F , int n , fileP *h){ //j'ai changé les parametres seulement 
+ liste p;
+ int i=0;
+ liste pmax;
+ processus x; printf("l= %p", L);
+ p=L;printf("p= %p", p);
+ initfile(h);
+
+ tab* T=NULL;
+ tab* Q=NULL;
+ while( i<n )
+ { x=defiler(F);  
+   enfiler(h, x);
+    pmax=NULL;
+    p=L;
+   while(p!=NULL){
+    if( (p->data.etat== 0 ) && ((p->data.taille)>=x.taille) ){
+        if(pmax==NULL){pmax=p;  }
+        if(pmax!=NULL&&((p->data.taille)>=(pmax->data.taille))){pmax=p;}
+         }
+
+    p=p->svt;
+   }
+   if(pmax!= NULL){
+               Q=(tab*)malloc(sizeof(tab));
+                   Q->id=x.id; Q->affect=p; printf("tc id = %d  tc affect= %p \n", Q->id , Q->affect);
+                   Q->svt=T; T=Q;//affectation
+                  pmax->data.etat=1;//1 devient occupe
+                  if ((pmax->data.taille)>x.taille ){
+                        createreste( pmax , x );}
+                  }
+  if(pmax==NULL){ enfiler(F, x);  }
+   i++;
+   }
+return (T);
+}
+
+
 
 
 
