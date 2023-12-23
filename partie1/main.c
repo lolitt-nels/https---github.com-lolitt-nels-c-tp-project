@@ -244,7 +244,7 @@ void createreste2(node* p , process x ){
 }
 
 
-tab* FirstfitP(liste L, fileP *F , int n , fileP *h){
+tab* Firstfit2(liste L, fileP *F , int n , fileP *h){
  liste p;
  int i=0;
  fileP r;
