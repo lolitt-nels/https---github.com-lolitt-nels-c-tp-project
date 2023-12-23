@@ -766,14 +766,14 @@ void decalage(liste L,tab * T){
     node * p;
 
     tab * t;
-    q = L->svt;
+    q = L;
     p = L;
 
     while (q != NULL){
           printf("p=%p  et q= %p   q.etat=%d \n", p , q, q->data.etat);
         if(q->data.etat == 1){  printf("l9ina \n");
-            while( (p->data.taille)<=(q->data.taille)){ printf("dkhel2");p = p->svt;}
-            if(p->data.etat==0 &&(p->data.taille)>(q->data.taille)){ printf("dkhel3");
+            while( (p->svt!=q)&&(p->data.taille)<(q->data.taille)){ printf("dkhel2");p = p->svt;}
+            if(p->data.etat==0 &&(p->data.taille)>=(q->data.taille)){ printf("dkhel3");
                 p->data.etat = 1;
                 q->data.etat = 0;
                 processus y;
@@ -781,22 +781,15 @@ void decalage(liste L,tab * T){
                 y.taille=q->data.taille;
                 createreste(p , y);
                 t = T;
-                while((t != NULL)&&(t->affect != q)){
+                while((t != NULL)&&(t->affect != q)){ printf("dkhlena boucle t\t");
                     t = t->svt;}
-
-                    if(t != NULL){t->affect = p;}
-
-
-            }
-             q=p->svt;
+                    t->affect = p; printf("t-affect= %p  ret p= %p \t", t->affect, p);
+                }
+             p=p->svt;
         }
-if(p==q && q->data.etat==0) {q = q->svt; printf("we changed cuz libre\n");}
+     q = q->svt;
     }
 }
-
-
-
-
 
 //////////////////////////////////////////////////////////////main////////////////////////////////////////////////////////////////////////////////
 
