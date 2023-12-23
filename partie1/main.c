@@ -1,102 +1,3 @@
-void decalage(liste L,tab * T){
-    node * q;
-    node * p;
-    tab * t;
-    q = L;
-    p = L;
-
-    while (q != NULL){
-        p = q; printf("p=%p  et q= %p   q.etat=%d \n", p , q, q->data.etat);
-        if(q->data.etat == 1){  printf("l9ina \n");
-            while(p != q && (p->data.taille)>(q->data.taille)){ printf("dkhel2");p = p->svt;}
-            if((p->data.taille)<=(q->data.taille)){ printf("dkhel3");
-                p->data.etat = 1;
-                q->data.etat = 0;
-                processus y;
-                y.ia=0; y.id=0; y.te=0;
-                y.taille=q->data.taille;
-                createreste(p , y);
-                t = T;
-                while((t != NULL)&&(t->affect != q)){
-                    t = t->svt;
-                    q = p;
-                    if(t != NULL){t->affect = p;}
-
-                }
-
-
-            }
-        }
-else {q = q->svt;}
-    }
-}
-
-
-/*
-tab* rech_ptit_id(tab* T){
-       tab* q;
-       tab* p=T;
-       tab* pmin=T;
-       while(p!=NULL){
-        if(p->id<pmin->id){pmin=p;}
-        p=p->svt;
-        } p=T;
-        q=T;
-      while(p!=NULL&& p!=pmin){
-        q=p; p=p->svt;
-      }
-       if(p==T){T=T->svt; p->svt=NULL;}
-       else{q->svt=p->svt; p->svt=NULL;}
-
-return(p);
-}
-
-
-
-//rearanger c faire une sorte de decalage te3 les partition apres chaque supression
-void decalage(liste L,tab * T){
-    node * q;
-    node * p;
-
-    tab * t;
-    q = L;
-    p = L;
-
-    while (q != NULL){
-        p = q; printf("p=%p  et q= %p   q.etat=%d \n", p , q, q->data.etat);
-        if(q->data.etat == 1){  printf("l9ina \n");
-            while(p != q && (p->data.taille)<(q->data.taille)){ printf("dkhel2");p = p->svt;}
-            if((p->data.taille)>(q->data.taille)){ printf("dkhel3");
-                p->data.etat = 1;
-                q->data.etat = 0;
-                processus y;
-                y.ia=0; y.id=0; y.te=0;
-                y.taille=q->data.taille;
-                createreste(p , y);
-                t = T;
-                while((t != NULL)&&(t->affect != q)){
-                    t = t->svt;}
-
-                    if(t != NULL){t->affect = p;}
-
-
-            }
-             q=p->svt;
-        }
-if(p==q) {q = q->svt; printf("we changed cuz libre\n");}
-    }
-}
-*/
-
-
-/*decalage(L, m);
-  affichageListepar(L);
- affichtab(m );*/
-
-
-
-
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -415,19 +316,19 @@ tab* BestFit2(liste L, fileP *F , int n , fileP *h){
 return (T);
 }
 
-tab* WorstFit2(liste L, fileP *F , int n , fileP *h){ //j'ai changé les parametres seulement 
+tab* WorstFit2(liste L, fileP *F , int n , fileP *h){ //j'ai changé les parametres seulement
  liste p;
  int i=0;
  liste pmax;
- processus x; printf("l= %p", L);
+ process x; printf("l= %p", L);
  p=L;printf("p= %p", p);
- initfile(h);
+ initfileP(h);
 
  tab* T=NULL;
  tab* Q=NULL;
  while( i<n )
- { x=defiler(F);  
-   enfiler(h, x);
+ { x=defilerP(F);
+   enfilerP(h, x);
     pmax=NULL;
     p=L;
    while(p!=NULL){
@@ -440,13 +341,13 @@ tab* WorstFit2(liste L, fileP *F , int n , fileP *h){ //j'ai changé les paramet
    }
    if(pmax!= NULL){
                Q=(tab*)malloc(sizeof(tab));
-                   Q->id=x.id; Q->affect=p; printf("tc id = %d  tc affect= %p \n", Q->id , Q->affect);
+                   Q->id=x.id; Q->affect=pmax; printf("tc id = %d  tc affect= %p \n", Q->id , Q->affect);
                    Q->svt=T; T=Q;//affectation
                   pmax->data.etat=1;//1 devient occupe
                   if ((pmax->data.taille)>x.taille ){
-                        createreste( pmax , x );}
+                        createreste2( pmax , x );}
                   }
-  if(pmax==NULL){ enfiler(F, x);  }
+  if(pmax==NULL){ enfilerP(F, x);  }
    i++;
    }
 return (T);
@@ -697,14 +598,14 @@ tab* WorstFit(liste L, file *F , int n , file *h){
    while(p!=NULL){
     if( (p->data.etat== 0 ) && ((p->data.taille)>=x.taille) ){
         if(pmax==NULL){pmax=p;  }
-        if(pmax!=NULL&&((p->data.taille)>=(pmax->data.taille))){pmax=p;}
+        if(pmax!=NULL &&((p->data.taille)>=(pmax->data.taille))){pmax=p;}
          }
 
     p=p->svt;
    }
    if(pmax!= NULL){
                Q=(tab*)malloc(sizeof(tab));
-                   Q->id=x.id; Q->affect=p; printf("tc id = %d  tc affect= %p \n", Q->id , Q->affect);
+                   Q->id=x.id; Q->affect=pmax ; printf("tc id = %d  tc affect= %p \n", Q->id , Q->affect);
                    Q->svt=T; T=Q;//affectation
                   pmax->data.etat=1;//1 devient occupe
                   if ((pmax->data.taille)>x.taille ){
@@ -771,9 +672,12 @@ void decalage(liste L,tab * T){
 
     while (q != NULL){
           printf("p=%p  et q= %p   q.etat=%d \n", p , q, q->data.etat);
-        if(q->data.etat == 1){  printf("l9ina \n");
+        if(q->data.etat == 1){
+
+                printf("l9ina \n");
             while( (p->svt!=q)&&(p->data.taille)<(q->data.taille)){ printf("dkhel2");p = p->svt;}
-            if(p->data.etat==0 &&(p->data.taille)>=(q->data.taille)){ printf("dkhel3");
+            if((p->data.etat==0)&&(p->data.taille)>=(q->data.taille)){ printf("dkhel3");
+
                 p->data.etat = 1;
                 q->data.etat = 0;
                 processus y;
@@ -815,7 +719,7 @@ liste L;
 
     h->queue=NULL;
     h->tete=NULL;
-// m=BestFit(L, &f, n , h);
+//m=BestFit(L, &f, n , h);
  //m=Firstfit(L, &f, n, h);
  m=WorstFit(L, &f, n, h );
  affichageListepar(L);
@@ -824,10 +728,10 @@ liste L;
  printf("h jidida\n");
  Affichefile(*h);
  affichtab(m );
-printf("finish");
- /*decalage(L, m);
+printf("finish\n");
+ decalage(L, m);
   affichageListepar(L);
- affichtab(m );*/
+ affichtab(m );
 //supression d'un processus apres terminer execution
 /*tab* e=rech_ptit_id(m);
 supress(e, L);
@@ -889,4 +793,3 @@ affichepile(pile);*/
 
     return 0;
 }
-
