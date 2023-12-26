@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
+#include <windows.h>
+#include <graphics.h>
 
 typedef struct partition{
     int adr;
@@ -642,7 +644,7 @@ void supress(tab *e, liste L){
 }
 
 tab* rech_ptit_id(tab* T){
-       tab* q;
+       tab* q; printf("entering rech \n");
        tab* p=T;
        tab* pmin=T;
        while(p!=NULL){
@@ -655,7 +657,7 @@ tab* rech_ptit_id(tab* T){
       }
        if(p==T){T=T->svt; p->svt=NULL;}
        else{q->svt=p->svt; p->svt=NULL;}
-
+      printf("finished rech e.id= %d ", p->id);
 return(p);
 }
 
@@ -720,18 +722,18 @@ liste L;
     h->queue=NULL;
     h->tete=NULL;
 //m=BestFit(L, &f, n , h);
- //m=Firstfit(L, &f, n, h);
- m=WorstFit(L, &f, n, h );
+ m=Firstfit(L, &f, n, h);
+ //m=WorstFit(L, &f, n, h );
  affichageListepar(L);
  printf("f jdida\n");
  Affichefile(f);
  printf("h jidida\n");
  Affichefile(*h);
- affichtab(m );
-printf("finish\n");
- decalage(L, m);
-  affichageListepar(L);
- affichtab(m );
+  affichtab(m );
+//printf("finish\n");
+ //decalage(L, m);
+  //affichageListepar(L);
+ //affichtab(m );
 //supression d'un processus apres terminer execution
 /*tab* e=rech_ptit_id(m);
 supress(e, L);
@@ -800,11 +802,53 @@ si non file vide(F) {use same politique};
 */
 
 
+printf("i am gonna supress once");
+tab* e=rech_ptit_id(m);
+int pos=e->id;
+file r;
+initfile(&r);
+processus proc;
+int find=0;
+printf("%d", FileVide(h));
+while((!FileVide(h)) ){
+
+    proc=defiler(h);  printf("on defile procid=%d \t", proc.id);
+     enfiler(&r, proc);
+    if(proc.id==e->id){ break;}
+
+}
+printf("%d  and %d ", proc.id, (int)proc.te);
+supress(e, L);
+
+ sleep(proc.te);
+ fflush(stdout);
+printf("its done \n");
+
+/*
+int gd = DETECT, gm;
+
+    // location of left, top, right, bottom
+    int left = 150, top = 150;
+    int right = 450, bottom = 450;
+
+    // initgraph initializes the graphics system
+    // by loading a graphics driver from disk
+    initgraph(&gd, &gm, "");
+
+    // rectangle function
+    rectangle(left, top, right, bottom);
+
+    getch();
+
+    // closegraph function closes the graphics
+    // mode and deallocates all memory allocated
+    // by graphics system .
+    closegraph();
 
 
 
-
-
+*/
+printf("well good job!");
 
 
 
