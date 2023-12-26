@@ -1,10 +1,13 @@
-#include <stdlib.h>
+
+
+
+
+
+  #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
-#include <windows.h>
-#include <graphics.h>
-
+#include <raylib.h>
 typedef struct partition{
     int adr;
     int taille;
@@ -697,6 +700,72 @@ void decalage(liste L,tab * T){
     }
 }
 
+
+void my_func(){
+
+
+ const int screenWidth = 800;
+    const int screenHeight = 450;
+
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
+    InitWindow(screenWidth, screenHeight, "raylib [shapes] example - cubic-bezier lines");
+
+    Vector2 startPoint = { 30, 30 };
+    Vector2 endPoint = { (float)screenWidth - 30, (float)screenHeight - 30 };
+    bool moveStartPoint = false;
+    bool moveEndPoint = false;
+
+    SetTargetFPS(60);
+ // Main game loop
+    while (!WindowShouldClose())    // Detect window close button or ESC key
+    {
+        // Update
+        //----------------------------------------------------------------------------------
+        Vector2 mouse = GetMousePosition();
+
+        if (CheckCollisionPointCircle(mouse, startPoint, 10.0f) && IsMouseButtonDown(MOUSE_BUTTON_LEFT)) moveStartPoint = true;
+        else if (CheckCollisionPointCircle(mouse, endPoint, 10.0f) && IsMouseButtonDown(MOUSE_BUTTON_LEFT)) moveEndPoint = true;
+
+        if (moveStartPoint)
+        {
+            startPoint = mouse;
+            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) moveStartPoint = false;
+        }
+
+        if (moveEndPoint)
+        {
+            endPoint = mouse;
+            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) moveEndPoint = false;
+        }
+        //----------------------------------------------------------------------------------
+
+        // Draw
+        //----------------------------------------------------------------------------------
+        BeginDrawing();
+
+            ClearBackground(RAYWHITE);
+
+            DrawText("MOVE START-END POINTS WITH MOUSE", 15, 20, 20, GRAY);
+
+            // Draw line Cubic Bezier, in-out interpolation (easing), no control points
+            DrawLineBezier(startPoint, endPoint, 4.0f, BLUE);
+
+            // Draw start-end spline circles with some details
+            DrawCircleV(startPoint, CheckCollisionPointCircle(mouse, startPoint, 10.0f)? 14 : 8, moveStartPoint? RED : BLUE);
+            DrawCircleV(endPoint, CheckCollisionPointCircle(mouse, endPoint, 10.0f)? 14 : 8, moveEndPoint? RED : BLUE);
+
+        EndDrawing();
+        //----------------------------------------------------------------------------------
+    }
+
+    // De-Initialization
+    //--------------------------------------------------------------------------------------
+    CloseWindow(); }
+
+
+
+
+
 //////////////////////////////////////////////////////////////main////////////////////////////////////////////////////////////////////////////////
 
 
@@ -721,8 +790,8 @@ liste L;
 
     h->queue=NULL;
     h->tete=NULL;
-//m=BestFit(L, &f, n , h);
- m=Firstfit(L, &f, n, h);
+m=BestFit(L, &f, n , h);
+ //m=Firstfit(L, &f, n, h);
  //m=WorstFit(L, &f, n, h );
  affichageListepar(L);
  printf("f jdida\n");
@@ -802,13 +871,13 @@ si non file vide(F) {use same politique};
 */
 
 
-printf("i am gonna supress once");
+/*printf("i am gonna supress once");
 tab* e=rech_ptit_id(m);
 int pos=e->id;
 file r;
 initfile(&r);
 processus proc;
-int find=0;
+
 printf("%d", FileVide(h));
 while((!FileVide(h)) ){
 
@@ -820,35 +889,65 @@ while((!FileVide(h)) ){
 printf("%d  and %d ", proc.id, (int)proc.te);
 supress(e, L);
 
- sleep(proc.te);
- fflush(stdout);
+ //sleep(proc.te);
+ //fflush(stdout);
 printf("its done \n");
 
-/*
-int gd = DETECT, gm;
-
-    // location of left, top, right, bottom
-    int left = 150, top = 150;
-    int right = 450, bottom = 450;
-
-    // initgraph initializes the graphics system
-    // by loading a graphics driver from disk
-    initgraph(&gd, &gm, "");
-
-    // rectangle function
-    rectangle(left, top, right, bottom);
-
-    getch();
-
-    // closegraph function closes the graphics
-    // mode and deallocates all memory allocated
-    // by graphics system .
-    closegraph();
 
 
 
 */
 printf("well good job!");
+
+
+
+
+    my_func();              // Set our game to run at 60 frames-per-second
+    //--------------------------------------------------------------------------------------
+
+          // Close window and OpenGL context
+    //--------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+//const int screenWidth = 800;
+//    const int screenHeight = 450;
+
+//    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+
+  // SetTargetFPS(60);
+           // Set our game to run at 60 frames-per-second
+    //--------------------------------------------------------------------------------------
+
+    // Main game loop
+       printf("its good \n");
+        // Update
+        //----------------------------------------------------------------------------------
+        // TODO: Update your variables here
+        //----------------------------------------------------------------------------------
+
+        // Draw
+        //----------------------------------------------------------------------------------
+       // BeginDrawing();
+
+          //  ClearBackground(RAYWHITE);
+
+           // DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+
+//        EndDrawing();
+        //----------------------------------------------------------------------------------
+
+
+    // De-Initialization
+    //--------------------------------------------------------------------------------------
+//    CloseWindow();
 
 
 
