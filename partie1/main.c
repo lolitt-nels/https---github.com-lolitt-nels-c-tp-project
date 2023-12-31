@@ -875,33 +875,40 @@ void main(){
     file f;
     file *h;
     tab* m;
+    int partie;
+    int politique;
+printf("veuillez choisir: \n 1-simulation sans priorite \n 2-simulation avec priorite \n");
+    scanf("%d", &partie);
+switch(partie){
 
-switch(main){
-
-    case part1:
-        printf("Vuillez donner le nombre de processsus : \n"); //np = nombre de processus
+    case 1:
+        printf("Veuillez donner le nombre de processsus : \n"); //np = nombre de processus
         scanf("%d",&np);
-        liste L; //creation de la liste
         L= Listepar();
         affichageListepar(L);
+        printf("appuiez sur un bouton pour avoir l'affichage graphique\n");
+        getchar();
         dessineeer(L,m);
         f=createfile(n); //creation de la file
         Affichefile(f);
         h->queue=NULL;
         h->tete=NULL;
-        printf("Veulliez donner la politique qui te convient : \n");
-
+        printf("Veulliez choisir la politique d'affectation qui vous convient : \n 1-Firstfit 2-BestFit 3-WorstFit \n");
+        scanf("%d",&politique);
          switch (politique){
 
-            case firstfit : m = Firstfit(L, &f, n , h);
+            case 1 : m = Firstfit(L, &f, n , h);
                 break;
-            case bestfit :  m = BestFit(L, &f, n , h);
+            case 2 :  m = BestFit(L, &f, n , h);
                 break;
-            case worstfit : m = WorstFit(L, &f, n , h);
+            case 3 : m = WorstFit(L, &f, n , h);
                 break;
+            default : printf("vous n'avez pas choisi de politique convenable");
                     }
          affichtab(m ); //affichage de la table
          affichageListepar(L); //affichage des partitions
+        printf("Appuiez sur un bouton du clavier pour avoir l'affichage graphique\n");
+        getchar();
          dessineeer(L,m);
          do{
             tab* e=rech_ptit_id(m);
@@ -909,37 +916,37 @@ switch(main){
             file r;
             initfile(&r);
             processus proc;
-            //file h c la file qui sauvgarde la toute premiere file avec toutes les valeurs
-            printf("%d", FileVide(h));
-            while((!FileVide(h)) ){
-
-            proc=defiler(h);  printf("on defile procid=%d \t", proc.id);
+            //file h c la file qui sauvgarde la toute premiere file avec toutes les valeur
+           
+            //recherche du processus afin d'avoir son temps d'execution 
+             while((!FileVide(h)) ){
+            proc=defiler(h); 
             enfiler(&r, proc);
             if(proc.id==e->id){ break;}
-
             }
-            printf("%d  and %d ", proc.id, (int)proc.te);
+            printf("execution du processus en cours..\n");
             supress(e, L);
             proc.te=(int)proc.te %60;
             sleep(proc.te);
             fflush(stdout);
+             printf("Fin d'execution ,processus suprime..\n");
             affichtab(m ); //affichage de la table
             Affichefile(f); //affichage de la file
             affichageListepar(L);//affichage de la liste de partition
+             printf("Appuiyez sur un bouton pour avoir l'affichage de la liste apres supression\n");
+             getchar();
             dessineeer(L,m);
             decalage(L, m);
             affichageListepar(L);
+             printf("Appuiez sur un bouton pour voir l'etat de la liste apres rearangement:\n");
+             getchar();
             dessineeer(L,m);
                             }while (non file vide (F))
-             printf("Press Enter to start the timer\n");
-            getchar();
-
+              break;
                 // end
-    case part2 :
-
-}
-
-
+    case 2 :
+    printf("partie 2 non disponible \n");
+         break;
 }
 
  /*//partie file
