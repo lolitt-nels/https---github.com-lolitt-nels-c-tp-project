@@ -288,7 +288,7 @@ void createreste2(node* p , process x ){
 
 }
 
-
+//allocation en memoire selon la politique Firstfit
 void FirstfitP(liste L, fileP *F, int *n, fileP *h, tab **T) {
     // Initialize variables
     int cpt=0;
@@ -334,6 +334,8 @@ void FirstfitP(liste L, fileP *F, int *n, fileP *h, tab **T) {
 *n=cpt;
 }
 
+
+//allocation en memoire selon la politique BestFit
 void BestFit2(liste L, fileP *F , int* n , fileP *h, tab** T){
 //initialisations
  int cpt=0;
@@ -379,7 +381,7 @@ void BestFit2(liste L, fileP *F , int* n , fileP *h, tab** T){
 }
 
 
-
+//allocation en memoire selon la politique WorstFit
 void WorstFit2(liste L, fileP *F , int *n , fileP *h, tab** T){
 
  //initialisation
@@ -448,7 +450,7 @@ tab* Q=NULL;
 
 
 
-
+//creation de la liste de partitons
 liste Listepar(){
     srand(time(NULL));
     int i;
@@ -475,6 +477,9 @@ liste Listepar(){
     p->svt = NULL; //dernier element n'a pas un svt
     return(L);
 }
+
+
+//afficher la liste de partitions
  void affichageListepar(liste L){
     liste p;
     p = L;
@@ -489,15 +494,16 @@ liste Listepar(){
 
 
 
-
-//Procedure InitFile(E/S/ F:File);
+//initialisation de la file
 void initfile(file *f){
   f->tete=NULL;
   f->queue=NULL;
 
 }
 
+//enfiler un processus dans chaque file
 void enfiler(file *f , processus x ){
+   //allocation en memoire et initialisation
     nodeF* newf=(nodeF*)malloc(sizeof(nodeF));
     newf->data.id = x.id;
     newf->data.ia=x.ia;
@@ -693,8 +699,7 @@ void Firstfit(liste L, file *F, int *n, file *h, tab **T) {
 
 
 void WorstFit(liste L, file *F , int* n , file *h ,tab **T){
-printf("dkhelna worst fit\n");
-printf("n= %d", *n);
+
  //initialisations
        liste p;
        int i=0;
@@ -706,11 +711,13 @@ printf("n= %d", *n);
        int cpt=0;
 
  while( i< *n )
- { printf("i<n\n"); printf("F tete= %p x.id= %d", F->tete, F->tete->data.id);
-      x=defiler(F); printf("on defile f  et x.id= %d x.taille= %d\n", x.id, x.taille);
+ {
+
+   x=defiler(F); printf("on defile f  et x.id= %d x.taille= %d\n", x.id, x.taille);
    enfiler(h, x);
-    pmax=NULL;
-    p=L;
+   pmax=NULL;
+   p=L;
+
     //recherche de la aprtition convenable selon la politique worstfit
    while(p!=NULL){
     if( (p->data.etat== 0 ) && ((p->data.taille)>=x.taille) ){ //trouver la partiton libre avec la plus grande taille
@@ -722,6 +729,7 @@ printf("n= %d", *n);
    }
    //mettre a jour la table des affectations
    if(pmax!= NULL){
+               //affectation dans la table
                Q=(tab*)malloc(sizeof(tab));
                    Q->id=x.id; Q->affect=pmax ; printf("tc id = %d  tc affect= %p \n", Q->id , Q->affect);
                    Q->svt=*T; *T=Q;//affectation
@@ -733,7 +741,7 @@ printf("n= %d", *n);
   if(pmax==NULL){ enfiler(F, x); cpt++;  }
    i++;
    }
-*n=cpt; printf("new n = %d", *n);
+*n=cpt;
 }
 
 //afficher la table des affectations
@@ -755,15 +763,13 @@ else{
 void supress(tab *e, liste L){
     node*p = e->affect;
     node* q =L;
-    node* pres=q;
+
     //recherche de l'adresse de la partition auquel le processus execute a ete affecte
     while(q!= p){
-        pres=q; q=q->svt;
+         q=q->svt;
         }  //Mise a jour de cette partiton
         if(q!=NULL){q->data.etat=0;}
-            //si partition precedente libre , les ccoller pour creer partition plus grande
-            //if (pres->data.etat==0){pres->data.taille= pres->data.taille + q->data.taille; pres->svt=q->svt; free(q);}
-            //sinon , si la suivante est libre :faire de meme
+            //si partition suivante est libre , fusionner pour creer partition plus grande
        node* suiv=q->svt;
        if (suiv->data.etat==0){q->data.taille=q->data.taille + suiv->data.taille; q->svt=suiv->svt; free(suiv);printf("we freed q.svt taille de q jdida %d\n", q->data.taille);}
         //liberer l'element de la table des affectations
@@ -840,7 +846,7 @@ void decalage(liste L,tab * T){
                 t = T;
                 while((t != NULL)&&(t->affect != q)){
                     t = t->svt;}
-                    t->affect = p; printf("l7e9na hna\n");
+                    t->affect = p;
                 }
              p=p->svt; printf("l7e9na 2\n");
         }
@@ -852,10 +858,10 @@ void decalage(liste L,tab * T){
 //fonction de dessin des partitions
 void drawRectangles(liste list, tab* t) {
     const int rectangleWidth = 50;
-    const int rectangleHeight = 50;
+    const int rectangleHeight = 40;
     const int startX = 30;
     const int startY = 200;
-    const int spacing = 10;
+    const int spacing = 5;
      int i=1;
      int staart=startX +rectangleWidth + spacing;;
     liste current = list;
@@ -899,12 +905,12 @@ SetTraceLogLevel(LOG_NONE);
 
         // Draw rectangles based on the list
         drawRectangles(L, t);
-         DrawText("Press Enter to start the restof the program", 10, 300, 20, DARKGRAY);
+         DrawText("Press Enter to start the rest of the program", 10, 300, 20, DARKGRAY);
 
         EndDrawing();
+     //debuter le reste du programme une fois avoir appuiyer sur entrer
       if (IsKeyPressed(KEY_ENTER)) {
-            // Start the rest of the program here
-            // Add your code to start the program after the Enter key is pressed
+
             break;  // Exit the loop to start the program
         }
 
@@ -928,24 +934,28 @@ int main(){
     int partie;
     int politique;
     liste L;
+    fileP g;
+    tab* table_2;
+    int n;
+    file f;
+    file h;
+    tab* m;
+    tab *e;
 
-
-printf("veuillez choisir: \n 1-simulation sans priorite \n 2-simulation avec priorite \n");
+    printf("veuillez choisir: \n 1-simulation sans priorite \n 2-simulation avec priorite \n");
     scanf("%d", &partie);
+
+
 switch(partie){
 
-     fileP g;
-fileP H;
-tab* table_2;
 
- int n;
-   file f;
-   file h;
-   tab* m;
-   tab *e;
+ //sans priorites
   case 1:
- //partie file
 
+ printf(".........................................................................\n");
+ printf("debut de la simulation de l'allocation sans priorite : \n \n \n");
+
+   //partie file
 
    printf("Veuillez donner le nombre de processsus : \n"); //n = nombre de processus
    scanf("%d", &n);
@@ -954,21 +964,20 @@ tab* table_2;
 
 
 
-//partie liste
+    //partie liste
 
     L= Listepar();
     printf("l'affichage de la liste : \n");
     affichageListepar(L);
- printf("appuiez sur un bouton pour avoir l'affichage graphique\n");
+    printf("appuiez sur un bouton pour avoir l'affichage graphique\n");
         getchar();
         m=NULL;
         dessineeer(L, m);
 
-    m=NULL;
-
+  //choix de la politique
     printf("Veulliez choisir la politique d'affectation qui vous convient : \n 1-Firstfit 2-BestFit 3-WorstFit \n");
          scanf("%d",&politique);
-    scanf("%d", &politique);
+
         initfile(&h);
            switch(politique){
 
@@ -996,31 +1005,31 @@ tab* table_2;
 
    file r;
 
-    do{
+    do{      //recherche du processus a suprimer
              e=rech_ptit_id(&m);
             initfile(&r);
             processus proc;
-            //file h c la file qui sauvgarde la toute premiere file avec toutes les valeur
 
-            //recherche du processus afin d'avoir son temps d'execution
+
+            //recherche du processus dans la copie de la file afin d'avoir son temps d'execution
              while((!FileVide(&h)) ){
             proc=defiler(&h);
-            printf("on defile et enfile \n");
             if(proc.id==e->id){ break;}
             enfiler(&r, proc);
             }
             printf("execution du processus en cours..\n");
             supress(e, L);
             proc.te=(int)proc.te %60;
+
+            //attendre l'execution
             fflush(stdout);
             sleep(proc.te);
             fflush(stdout);
-           printf("\n file vide h apres sleep %d", FileVide(&h));
+           //re-remplir la file
             if(!FileVide(&h)){
             while(!FileVide(&h) ){
             proc=defiler(&h);
             enfiler(&r, proc);
-            printf("on continue de defiler \n");
             }}
 
             h=r;
@@ -1030,14 +1039,16 @@ tab* table_2;
            //  printf("la 2eme \n");
              //Affichefile(h);
 
+            printf("Fin d'execution ,processus supprime..\n");
+            //affichage des elements apres execution
 
-
-             printf("Fin d'execution ,processus supprime..\n");
             affichtab(m ); //affichage de la table
             affichageListepar(L);//affichage de la liste de partition
              printf("Appuiyez sur un bouton pour avoir l'affichage de la liste apres supression\n");
              getchar();
             dessineeer(L,m);
+
+            //rearanger les partiton et affichages des elements
             decalage(L, m);
             affichageListepar(L);
              printf("Appuiez sur un bouton pour voir l'etat de la liste apres rearangement:\n");
@@ -1045,6 +1056,8 @@ tab* table_2;
             dessineeer(L,m);
          //   Affichefile(h);
             printf("file vide h=%d  ",FileVide(&h));
+
+                       //allouer les processus restants s'il y en a
                          if(!FileVide(&f)){ printf("dkhelna f switch 2eme\n");
                                 switch(politique){
 
@@ -1063,15 +1076,23 @@ tab* table_2;
 
                 printf("execution termine!");
                    break;
-                // end
-    case 2 :
+                // fin de la partie 1
+
+ //partie avec priorite
+
+ case 2 :
+
+
+ printf(".........................................................................\n");
+ printf("debut de la simulation de l'allocation avec priorite : \n \n \n");
+
+
       initfileP(&H);
       initfileP(&g);
       Pile pile;
       InitPile(&pile);
       int posdeb=0;
       int nbr3, nbr2, nbr1;
-
       table_2=NULL;
            //creation et affichage de la liste
            L= Listepar();
@@ -1079,6 +1100,7 @@ tab* table_2;
            printf("appuiez sur un bouton pour avoir l'affichage graphique\n");
            getchar();
            dessineeer(L, table_2);
+
            //remplissage de la pile selon les priorites
                  printf("donnez le nombre de processes de priorite 1 \n");
                  scanf("%d", &nbr1);
@@ -1086,6 +1108,9 @@ tab* table_2;
                  posdeb=g.queue->data.id;
                  //AffichefileP(g);
                  Empiler(&pile,g, 1);
+
+                 //remplir les files une a une
+
 
                  printf("donnez le nombre de processes de priorite 2 \n");
                  scanf("%d", &nbr2);
@@ -1125,25 +1150,28 @@ tab* table_2;
         //choix des politique
         printf("Veulliez choisir la politique d'affectation qui vous convient : \n 1-Firstfit 2-BestFit 3-WorstFit \n");
         scanf("%d",&politique);
-        elem element;
-         Pile pile_inter;
+
+         elem element;
          elem element_inter;
-         fileP inter;
-         elem element2;
-         elem element3;
+
          initfileP(&element_inter.F);
          initfileP(&element.F);
          int count;
          int nbr=0;
          printf("\n pile est %d", PileVide(pile));
-            do{
+         element_inter.F.tete=NULL;
+
+            do{  //depiler le sommet de la pile
                    elem p=Depiler(&pile);
+
+                    //nombre de processus pour chaque file de priorite
                     switch(p.prio){
                                          case 1: nbr= nbr+nbr1; printf("on est la et nbr= %d Nbr1= %d", nbr, nbr1); nbr1=nbr; break;
                                          case 2: nbr= nbr+nbr2; printf("on est la nbr= %d Nbr1= %d", nbr, nbr2); nbr2=nbr; break;
                                          case 3: nbr=nbr+nbr3; printf("on est la nbr= %d Nbr1= %d", nbr, nbr3); nbr3=nbr; break;
                                          }
                      printf("khrejna mel p prio switch \n");
+                   //remettre les processus de taille superieur non allouer en queu de file de la taille inferieur suivante
                    if(element_inter.F.tete!= NULL){ printf("on est la aussi \n"); element_inter.F.queue->svt=p.F.tete; p.F.tete=element.F.tete;}
      switch (politique){
             case 1 : printf("we're here\n"); FirstfitP(L, &p.F, &nbr, &element.F ,&table_2); printf("we finished \n"); break;
@@ -1157,11 +1185,13 @@ tab* table_2;
                                          case 3: count=nbr3-nbr; printf("count= %d \n", count); break;
                                          }
 
+               printf(" \n affichage de la table des affectations apres allocation : \n \n")
+
                affichtab(table_2 );
                     printf("appuiez sur un bouton pour avoir l'affichage graphique\n");
                 getchar();
                 dessineeer(L, table_2);
-        while(count>0){ printf("\n iteration number %d \n", count);
+        while(count>0){ printf("\n iteration numero %d \n", count);
            fileP ri;
             e=rech_ptit_id(&table_2);
             initfileP(&ri);
@@ -1173,6 +1203,7 @@ tab* table_2;
             enfilerP(&ri, pro);
             }
             printf("execution du processus en cours..\n");
+            //supression du processus execute
             supress(e, L);
             pro.te=(int)pro.te %60;
             fflush(stdout);
@@ -1190,11 +1221,15 @@ tab* table_2;
             element.F.queue=ri.queue;
             printf("\n file vide h apre remplissage de r %d", FileVideP(&element.F));
               printf("Fin d'execution ,processus supprime..\n");
+
+            //afficage apres la supression
             affichtab(table_2 ); //affichage de la table
             affichageListepar(L);//affichage de la liste de partition
              printf("Appuiyez sur un bouton pour avoir l'affichage de la liste apres supression\n");
              getchar();
             dessineeer(L,table_2);
+
+            //declage et affichage des elements apres decalage
             decalage(L, table_2);
             affichageListepar(L);
              printf("Appuiez sur un bouton pour voir l'etat de la liste apres rearangement:\n");
@@ -1215,24 +1250,6 @@ tab* table_2;
         }
 
 
-
-//partie pile et files
-/*
-fileP g;
-fileP h;
-tab* u=NULL;
-initfileP(&h);
-initfileP(&g);
-printf("donnez le nombre de processes\n");
-int nbr;
-scanf("%d", &nbr);
-int j=1;
-g=createfileP(nbr, j);
-AffichefileP(g);
-//u=FirstfitP(L, &g, nbr, &h);
-u=FirstfitP(L, &g, nbr, &h);
-affichtab(u);
-*/
 
 
 /*Pile pile;
