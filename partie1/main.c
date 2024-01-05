@@ -97,24 +97,30 @@ int PileVide(Pile pile) {
 
 // Empiler un élément sur la pile
 void Empiler(Pile  *pile,fileP f, int n) {
-    elem* nouvelElem = (elem*)malloc(sizeof(elem)); printf("newele adress =%p\n", nouvelElem);
-    nouvelElem->prio=n; printf("newele prio =%d \t", nouvelElem->prio);
+    elem* nouvelElem = (elem*)malloc(sizeof(elem));
+    nouvelElem->prio=n;
    nouvelElem->F.queue=f.queue;
    nouvelElem->F.tete=f.tete;
     nouvelElem->svt = *pile ;
-    printf("pile = %p et  newele svt  =%p doit etre egale \n", *pile, nouvelElem->svt);
-    *pile = nouvelElem ; printf("nouvellepile adress =%p  doit etre egale a newele adress \n", *pile);
+    *pile = nouvelElem ;
 
 }
 
 // Dépiler un élément de la pile
 elem Depiler(Pile* pile) {
      elem f;
-     printf("\n pile avant %p \n", *pile);
+
+     if (*pile == NULL) {
+        // Stack is empty, return an element with all attributes set to 0
+        f.prio = 0;
+        f.F.tete = NULL;
+        f.F.queue = NULL;
+        return f;
+    }
      f.F.queue= (*pile)->F.queue;
      f.F.tete=(*pile)->F.tete;
      f.prio=(*pile)->prio;
-    elem* temp = (*pile)->svt; printf("temp= %p \n", temp);
+    elem* temp = (*pile)->svt;
     //*pile = temp->svt;
     free(*pile);
     *pile=temp;
@@ -162,6 +168,15 @@ void enfilerP(fileP *f , process x ){
 process defilerP(fileP *f ){
     nodeFP* temp;
     process x;
+   if (f->tete == NULL) {
+        // Queue is empty, return a process with all attributes set to 0
+        x.id = 0;
+        x.ia = 0.0;
+        x.te = 0.0;
+        x.taille = 0;
+        x.prio = 0;
+        return x;
+    }
     temp = (f->tete);
     x.ia=((f->tete)->data).ia;
     x.id=((f->tete)->data).id;
@@ -189,13 +204,14 @@ void AffichefileP(fileP f){
     fileP r;
     printf("debut affichage\n");
     initfileP(&r);
-    while (FileVideP(&f)!=1){
+    if (FileVideP(&f)==1){printf("file vide");}
+  else{  while (FileVideP(&f)!=1){
         x=defilerP(&f);
         printf("id= %d  ia=%0.2f te=%0.2f taille= %d prio=%d \n", x.id , x.ia , x.te , x.taille , x.prio);
 
         enfilerP(&r , x );
     }
-    f=r;
+  f=r;}
 }
 
 void affichepile(Pile p){
@@ -247,47 +263,62 @@ void createreste2(node* p , process x ){
  p->svt=q;
 
 }
+void FirstfitP(liste L, fileP *F, int *n, fileP *h, tab **T) {
+    // Initialize variables
+    int cpt=0;
+    liste p;
+    int i = 0;
+    process x;
+    p = L;
+    int trouve;
+    tab *Q = NULL;
 
+    // Loop through each process in the file
+    while (i < *n) {
+        x = defilerP(F);
+        enfilerP(h, x);
+        p = L;
+        trouve = 0;
 
-void FirstfitP(liste L, fileP *F , int n , fileP *h, tab** T){
-  //initialisation
- liste p;
- int i=0;
- process x; printf("l= %p", L);
- p=L;printf("p= %p", p);
- int trouve;
- tab* Q=NULL; printf("t= %p", T);
- while( i<n )//normalement i use something like boucle pour cuz i know num of elements
-{ x=defilerP(F);  printf("defilina w enfilina \n");
-   enfilerP(h, x);
-   p=L;
-   trouve=0;
-   while(p!=NULL && trouve==0){
-     if( (p->data.etat== 0 ) && ((p->data.taille)>=x.taille) ){
-             Q=(tab*)malloc(sizeof(tab));
-                   Q->id=x.id; Q->affect=p; printf("tc id = %d  tc affect= %p \n", Q->id , Q->affect);
-                   Q->svt=*T; *T=Q;//affectation
-            trouve=1;
-           p->data.etat=1;
-             if ((p->data.taille)>x.taille ){createreste2( p , x );}
-          }
-   p=p->svt;
-   }
-   if (trouve==0){enfilerP(F, x);}
-   i++;
- }
+        // Check for available space in the list
+        while (p != NULL && trouve == 0) {
+            if (p->data.etat == 0 && p->data.taille >= x.taille) {
+                Q = (tab *)malloc(sizeof(tab));
+                Q->id = x.id;
+                Q->affect = p;
+                Q->svt = *T;
+                *T = Q;
+                trouve = 1;
+                p->data.etat = 1;
 
+                if (p->data.taille > x.taille) {
+                    createreste2(p, x);
+                }
+            }
+            p = p->svt;
+        }
+
+        // If no space is available, enqueue the process back to the file
+        if (trouve == 0) {
+            enfilerP(F, x);
+            cpt++; // Increment the number of processes not allocated
+        }
+        i++;
+    }
+*n=cpt;
 }
 
-
-void BestFit2(liste L, fileP *F , int n , fileP *h, tab** T){
+void BestFit2(liste L, fileP *F , int* n , fileP *h, tab** T){
+//initialisations
+ int cpt=0;
  liste p;
  int i=0;
  liste pmin;
  process x; printf("l= %p", L);
  p=L;printf("p= %p", p);
  tab* Q=NULL;
- while(i<n )//normalement i use something like boucle pour cuz i know num of elements
+
+ while(i< *n )//normalement i use something like boucle pour cuz i know num of elements
  { x=defilerP(F);  printf("defilina w enfilina \n");
    enfilerP(h, x);
     pmin=NULL;      //initialiser min
@@ -310,21 +341,22 @@ void BestFit2(liste L, fileP *F , int n , fileP *h, tab** T){
                 if ((pmin->data.taille)>x.taille ){
                         createreste2( pmin , x );}
                   }
-  if(pmin==NULL){ enfilerP(F, x);  }
+  if(pmin==NULL){ enfilerP(F, x); cpt++;  }
  i++;
  }
-
+*n=cpt;
 }
 
-void WorstFit2(liste L, fileP *F , int n , fileP *h, tab** T){ //j'ai changé les parametres seulement
+void WorstFit2(liste L, fileP *F , int *n , fileP *h, tab** T){
  //initialisation
+ int cpt=0;
  liste p;
  int i=0;
  liste pmax;
  process x; printf("l= %p", L);
  p=L;printf("p= %p", p);
  tab* Q=NULL;
- while( i<n )
+ while( i< *n )
  { x=defilerP(F);
    enfilerP(h, x);
     pmax=NULL;
@@ -345,9 +377,10 @@ void WorstFit2(liste L, fileP *F , int n , fileP *h, tab** T){ //j'ai changé le
                   if ((pmax->data.taille)>x.taille ){
                         createreste2( pmax , x );}
                   }
-  if(pmax==NULL){ enfilerP(F, x);  }
+  if(pmax==NULL){ enfilerP(F, x); cpt++;  }
    i++;
    }
+*n=cpt;
 }
 
 
@@ -693,7 +726,7 @@ void supress(tab *e, liste L){
        node* suiv=q->svt;
        if (suiv->data.etat==0){q->data.taille=q->data.taille + suiv->data.taille; q->svt=suiv->svt; free(suiv);printf("we freed q.svt taille de q jdida %d\n", q->data.taille);}
         //liberer l'element de la table des affectations
-        free(e);
+        free(e); printf("we freed e too \n");
 }
 
 //recherche du processus arrive en premier pour l'executer
@@ -714,7 +747,7 @@ tab* rech_ptit_id(tab* T){
 
        if(p==T){T=T->svt; p->svt=NULL;}
        else{q->svt=p->svt; p->svt=NULL;}
-       if(p==T && T->svt==NULL){T=NULL;}
+       if(p==T && T->svt==NULL){T=NULL;printf("on a remis t a null");}
       printf("processus a executer : %d ", p->id);
 return(p);
 }
@@ -833,7 +866,7 @@ SetTraceLogLevel(LOG_NONE);
 
 int main(){
 
-
+    printf("fait par: \n Bedrane Melissa et Abbas Imene \n \n \n \n \n ");
     int partie;
     int politique;
     liste L;
@@ -979,7 +1012,7 @@ tab* table_2;
       Pile pile;
       InitPile(&pile);
       int posdeb=0;
-      int nbr;
+      int nbr3, nbr2, nbr1;
 
       table_2=NULL;
            //creation et affichage de la liste
@@ -989,20 +1022,32 @@ tab* table_2;
            getchar();
 
            //remplissage de la pile selon les priorites
-                 for(int k=1;k<=3;k++){
-                 printf("donnez le nombre de processes de priorite %d \n", k);
-                 scanf("%d", &nbr);
-                 g=createfileP(nbr, k, posdeb);
+                 printf("donnez le nombre de processes de priorite 1 \n");
+                 scanf("%d", &nbr1);
+                 g=createfileP(nbr1, 1, posdeb);
                  posdeb=g.queue->data.id;
                  AffichefileP(g);
-                 Empiler(&pile,g, k);
-                 }
+                 Empiler(&pile,g, 1);
+
+                 printf("donnez le nombre de processes de priorite 2 \n");
+                 scanf("%d", &nbr2);
+                 g=createfileP(nbr2, 2, posdeb);
+                 posdeb=g.queue->data.id;
+                 AffichefileP(g);
+                 Empiler(&pile,g, 2);
+
+                 printf("donnez le nombre de processes de priorite 3 \n");
+                 scanf("%d", &nbr3);
+                 g=createfileP(nbr3, 3, posdeb);
+                 AffichefileP(g);
+                 Empiler(&pile,g, 3);
+
 
 
      Pile intermedo;
      InitPile(&intermedo);
 
-       //affichage de la pile
+      //affichage de la pile
        for(int z=3; z>0; z--){
        printf(" ----------------affichage de la pile de priorite : %d-----------------\n ", z);
          elem depp=Depiler(&pile);
@@ -1015,12 +1060,13 @@ tab* table_2;
          elem depp=Depiler(&intermedo);
             Empiler(&pile, depp.F, depp.prio);
         }
-          printf("vide= %d \n", PileVide(pile));
+          printf("vide= %d  et pile =%p \n", PileVide(pile), pile);
+
+
 
         //choix des politique
         printf("Veulliez choisir la politique d'affectation qui vous convient : \n 1-Firstfit 2-BestFit 3-WorstFit \n");
         scanf("%d",&politique);
-
         elem element;
          Pile pile_inter;
          elem element_inter;
@@ -1028,201 +1074,57 @@ tab* table_2;
          elem element2;
          elem element3;
          initfileP(&element_inter.F);
+         initfileP(&element.F);
+         int nbr=0;
+         printf("\n pile est %d", PileVide(pile));
+            do{
+                   elem p=Depiler(&pile);
+                    switch(p.prio){
+                                         case 1: nbr+=nbr1; nbr1=nbr; break;
+                                         case 2: nbr+=nbr2; nbr2=nbr; break;
+                                         case 3: nbr+=nbr3; nbr3=nbr; break;
+                                         }
+                   if(element_inter.F.tete!= NULL){element_inter.F.queue->svt=p.F.tete; p.F.tete=element.F.tete;}
+     switch (politique){
+            case 1 : FirstfitP(L, &p.F, &nbr, &element.F ,&table_2); break;
+            case 2 : BestFit2(L, &p.F, &nbr, &element.F ,&table_2); break;
+            case 3 : WorstFit2(L, &p.F, &nbr, &element.F ,&table_2); break;
+            default : printf("vous n'avez pas choisi de politique convenable");}
 
-        switch (politique){
+               affichtab(table_2 );
+                    printf("appuiez sur un bouton pour avoir l'affichage graphique\n");
+                getchar();
+                dessineeer(L, table_2);
 
-            case 1 :
-                 InitPile(&pile_inter);printf("voila \n");
-                   printf(" avant %p \n", pile);
-                   //traitement priorite 3
-                     element=Depiler(&pile);
-                     printf(" apres %p \n", pile);
-                     printf("x.prio=%d , x.F.tete= %p , x.F.queu=%p \n ", element.prio, element.F.tete ,element.F.queue);
-                     Empiler(&pile_inter, element.F , element.prio);
-                     FirstfitP(L, &element.F , element.prio ,&element_inter.F, &table_2);
-                     affichtab(table_2);
-
-
-
-                         //initialiser la file intermediaire
-                   // inter.tete=element_inter.F.tete; printf("\n \n affichage de file inter apres 1er affect \n");
-                    //inter.queue=element_inter.F.queue; printf("intre queu=%p elem inter queu=%p\n \n", inter.queue, element_inter.F.queue );
-                    //AffichefileP(inter);
-                    printf("\n on va depiler le 2eme element \n");
-                    //traitement priorite 2
-                    element2=Depiler(&pile);
-                    printf("x.prio=%d , x.F.tete= %p , x.F.queu=%p\n ", element2.prio, element2.F.tete ,element2.F.queue);
-                    printf("voila 4\n");
-                    Empiler(&pile_inter, element2.F , element2.prio);
-                    printf("\n e lement f tetwe= %p \n",element.F.tete);
-                    (element2.F.queue)->svt=element.F.tete; printf("elemt2 queu svt=%p elem inter.tete=%p\n \n", element2.F.queue->svt, element_inter.F.tete );
-                 FirstfitP(L, &element2.F , element.prio ,&element_inter.F, &table_2);
-
-                    printf("apres elem2\n");
-                    affichtab(table_2);
-
-
-                    //traitement priorite 1
-                   element3=Depiler(&pile);
-
-                    Empiler(&pile_inter, element3.F , element3.prio);
-
-                    (element3.F.queue)->svt=element2.F.tete;
-                    FirstfitP(L, &element3.F , element3.prio ,&element_inter.F, &table_2);
-
-
-                 affichtab(table_2);
-                 pile=pile_inter;
-
-                printf("affichage de tout les element dde file \n");
-                AffichefileP(element_inter.F);
-
-
-
-
-                break;
-            case 2 :
-                InitPile(&pile_inter);printf("voila \n");
-                   printf(" avant %p \n", pile);
-                   //traitement priorite 3
-                     element=Depiler(&pile);
-                     printf(" apres %p \n", pile);
-                     printf("x.prio=%d , x.F.tete= %p , x.F.queu=%p \n ", element.prio, element.F.tete ,element.F.queue);
-                     Empiler(&pile_inter, element.F , element.prio);
-                     BestFit2(L, &element.F , element.prio ,&element_inter.F, &table_2);
-                     affichtab(table_2);
-                     printf("affichage de ement inter \n");
-                     AffichefileP(element_inter.F);
-
-
-
-                         //initialiser la file intermediaire
-                   // inter.tete=element_inter.F.tete; printf("\n \n affichage de file inter apres 1er affect \n");
-                    //inter.queue=element_inter.F.queue; printf("intre queu=%p elem inter queu=%p\n \n", inter.queue, element_inter.F.queue );
-                    //AffichefileP(inter);
-                    printf("\n on va depiler le 2eme element \n");
-                    //traitement priorite 2
-                    element2=Depiler(&pile);
-                    printf("x.prio=%d , x.F.tete= %p , x.F.queu=%p\n ", element2.prio, element2.F.tete ,element2.F.queue);
-                    printf("voila 4\n");
-                    Empiler(&pile_inter, element2.F , element2.prio);
-                    printf("\n e lement f tetwe= %p \n",element.F.tete);
-                    (element2.F.queue)->svt=element.F.tete; printf("elemt2 queu svt=%p elem inter.tete=%p\n \n", element2.F.queue->svt, element_inter.F.tete );
-                 BestFit2(L, &element2.F , element.prio ,&element_inter.F, &table_2);
-
-                    printf("apres elem2\n");
-                    affichtab(table_2);
-                      AffichefileP(element_inter.F);
-
-
-                    //traitement priorite 1
-                     element3=Depiler(&pile);
-
-                    Empiler(&pile_inter, element3.F , element3.prio);
-
-                    (element3.F.queue)->svt=element2.F.tete;
-                    BestFit2(L, &element3.F , element3.prio ,&element_inter.F, &table_2);
-
-
-                 affichtab(table_2);
-                 pile=pile_inter;
-
-                printf("affichage de tout les element dde file \n");
-                AffichefileP(element_inter.F);
-
-                break;
-            case 3 :
-                 InitPile(&pile_inter);printf("voila \n");
-                   printf(" avant %p \n", pile);
-                   //traitement priorite 3
-                     element=Depiler(&pile);
-                     printf(" apres %p \n", pile);
-                     printf("x.prio=%d , x.F.tete= %p , x.F.queu=%p \n ", element.prio, element.F.tete ,element.F.queue);
-                     Empiler(&pile_inter, element.F , element.prio);
-                     WorstFit2(L, &element.F , element.prio ,&element_inter.F, &table_2);
-                     affichtab(table_2);
-                     printf("affichage de ement inter \n");
-                     AffichefileP(element_inter.F);
-
-
-
-                         //initialiser la file intermediaire
-                   // inter.tete=element_inter.F.tete; printf("\n \n affichage de file inter apres 1er affect \n");
-                    //inter.queue=element_inter.F.queue; printf("intre queu=%p elem inter queu=%p\n \n", inter.queue, element_inter.F.queue );
-                    //AffichefileP(inter);
-                    printf("\n on va depiler le 2eme element \n");
-                    //traitement priorite 2
-                    element2=Depiler(&pile);
-                    printf("x.prio=%d , x.F.tete= %p , x.F.queu=%p\n ", element2.prio, element2.F.tete ,element2.F.queue);
-                    printf("voila 4\n");
-                    Empiler(&pile_inter, element2.F , element2.prio);
-                    printf("\n e lement f tetwe= %p \n",element.F.tete);
-                    (element2.F.queue)->svt=element.F.tete; printf("elemt2 queu svt=%p elem inter.tete=%p\n \n", element2.F.queue->svt, element_inter.F.tete );
-                 WorstFit2(L, &element2.F , element.prio ,&element_inter.F, &table_2);
-
-                    printf("apres elem2\n");
-                    affichtab(table_2);
-                      AffichefileP(element_inter.F);
-
-
-                    //traitement priorite 1
-                     element3=Depiler(&pile);
-
-                    Empiler(&pile_inter, element3.F , element3.prio);
-
-                    (element3.F.queue)->svt=element2.F.tete;
-                    WorstFit2(L, &element3.F , element3.prio ,&element_inter.F, &table_2);
-
-
-                 affichtab(table_2);
-                 pile=pile_inter;
-
-
-                break;
-            default : printf("vous n'avez pas choisi de politique convenable");
-                    }
-
-            printf("\n \n");
-                 printf("Appuiez sur un bouton pour voir l'etat de la liste apres affectations:\n");
-             getchar();
-             getchar();
-            dessineeer(L,table_2);
-
-
-             do{
-             tab* j=rech_ptit_id(table_2);
-             affichtab(table_2 );
-            fileP r;
-            initfileP(&r);
-            process proc;
-            //file h c la file qui sauvgarde la toute premiere file avec toutes les valeur
-
-            //recherche du processus afin d'avoir son temps d'execution
-             while((!FileVideP(&element_inter.F)) ){
-            proc=defilerP(&element_inter.F);
-            if(proc.id==j->id){ break;}
-              enfilerP(&r, proc);
+           fileP ri;
+            e=rech_ptit_id(table_2);
+            initfileP(&ri);
+            process pro;
+              while((!FileVideP(&element.F)) ){
+            pro=defilerP(&element.F);
+            printf("on defile et enfile \n");
+            if(pro.id==e->id){ break;}
+            enfilerP(&ri, pro);
             }
-           //affichtab(table_2 );
             printf("execution du processus en cours..\n");
-            supress(j, L);
-            proc.te=(int)proc.te %60;
-            sleep(proc.te);
+            supress(e, L);
+            pro.te=(int)pro.te %60;
             fflush(stdout);
-          //   affichtab(table_2 );
-             while((!FileVideP(&element_inter.F)) ){
-            proc=defilerP(&element_inter.F);
-              enfilerP(&r, proc);
-            }
-            while((!FileVideP(&r)) ){
-            proc=defilerP(&r);
-              enfilerP(&element_inter.F, proc);
-            }
-            element_inter.F=r;
+            sleep(pro.te);
+            fflush(stdout);
+           printf("\n file vide h apres sleep %d", FileVideP(&element.F));
+            if(!FileVideP(&element.F)){
+            while(!FileVideP(&element.F) ){
+            pro=defilerP(&element.F);
+            enfilerP(&ri, pro);
+            printf("on continue de defiler \n");
+            }}
 
-             printf("Fin d'execution ,processus suprime..\n");
+            element.F.tete=ri.tete;
+            element.F.queue=ri.queue;
+            printf("\n file vide h apre remplissage de r %d", FileVideP(&element.F));
+              printf("Fin d'execution ,processus supprime..\n");
             affichtab(table_2 ); //affichage de la table
-            AffichefileP(element3.F); //affichage de la file
             affichageListepar(L);//affichage de la liste de partition
              printf("Appuiyez sur un bouton pour avoir l'affichage de la liste apres supression\n");
              getchar();
@@ -1232,126 +1134,17 @@ tab* table_2;
              printf("Appuiez sur un bouton pour voir l'etat de la liste apres rearangement:\n");
              getchar();
             dessineeer(L,table_2);
-             printf("file vide p 3 =%d", FileVideP(&element3.F));
-                            }while (!FileVideP(&element3.F));
-            printf("fin de l'execution\n");
-            getchar();
 
+              element_inter.F.tete=p.F.tete;
+              element_inter.F.queue=p.F.queue;
 
+     }while(!PileVide(pile));
+     printf("la pile est enfin vide\n");
 
-         break;
-}
+       printf("fin execution\n");
 
-
-
-
-
-/*
-switch{
-    cas 1 [part1 sans priorite]
-       ask user donnez le nombre de processus
-       creer la liste  + affichage textuelle + affichage raylib
-       creation de la file +affichage textuelle.
-
-        ask user politique switch {
-                                   cas 1 [first fit] (utilisation la fonction)
-                                   cas 2 [best fit] (utilisation la fonction)
-                                   cas 3 [worst fit](utilisation la fonction)
-                                   }
-             affichage de la table des affectations
-             afficher les partitions (textuelle + graphic)
-             do{  recherche ptit id ;
-                  supress ;
-                  sleep;
-                  affiche tables des affectations+ affiche file + affiche partitons (textuelle +graphic)
-                  decalage (rearanger);
-                  affichage partitions
-             }while (non file vide (F))
-
-//use keyborad thingy before every affichage graphique
-//this code allows the function to start once the user presses a button
-
-printf("Let the Battle Begin!\n");
-printf("Press Any Key to Continue\n");
-getchar();
-   cas 2 [part2 avec priorite]
-            create liste de partition affichage textuelle+ graphique
-            ask user for every file de priorite , creation de files et pile
-            affichage de la pile et ses files
-
-           ask user politique switch {
-
-                                   cas 1 [first fit] (utilisation la fonction):depiler Pile
-                                                                               use function
-                                                                               depiler pile 2+enfiler le reste de la file
-                                                                               use function
-                                                                               depiler pile 3 +enfiler le reste de la file
-                                                                               use function
-                                                                              affichage liste et tab et
-
-                                   }
-
-                                   cas 2 [best fit] (utilisation la fonction)
-                                   cas 3 [worst fit](utilisation la fonction)
-                                   }
-
-                      affichage de la table des affectations
-             afficher les partitions (textuelle + graphic)
-     do{  recherche ptit id ;
-                  supress ;
-                  sleep;
-                  affiche tables des affectations+ affiche file + affiche partitons (textuelle +graphic)
-                  decalage (rearanger);
-                  affichage partitions
-             }while (non file vide (F))//vu que te93ed que la derniere file
-
-}
-
-*/
-
-
-
-/*
- //partie file
-   int n;
-   file f;
-   file *h;
-   tab* m;
-   printf("donnez n \n");
-   scanf("%d", &n);
-   f=createfile(n);
-   Affichefile(f);
-
-
-//partie liste
-liste L;
-    L= Listepar();
-    printf("l'affichage de la liste : \n");
-    affichageListepar(L);
-
-    h->queue=NULL;
-    h->tete=NULL;
-m=BestFit(L, &f, n , h);
- //m=Firstfit(L, &f, n, h);
- //m=WorstFit(L, &f, n, h );
- affichageListepar(L);
- printf("f jdida\n");
- Affichefile(f);
- printf("h jidida\n");
- Affichefile(*h);
-  affichtab(m );
-
-  dessineeer(L, m);
-
-  printf("Press Enter to start the timer\n");
-    getchar();
-
-*/
-
-
-
-
-
+       break;
+        }
 
 
 
@@ -1397,50 +1190,7 @@ printf("pile vide= %d \n \n", PileVide(pile));
 affichepile(pile);*/
 
 
-//supression procedure en details
-
-/*printf("i am gonna supress once");
-tab* e=rech_ptit_id(m);
-int pos=e->id;
-file r;
-initfile(&r);
-processus proc;
-//file h c la file qui sauvgarde la toute premiere file avec toutes les valeurs
-printf("%d", FileVide(h));
-//recherche du temps d'execution
-while((!FileVide(h)) ){
-
-    proc=defiler(h);  printf("on defile procid=%d \t", proc.id);
-     enfiler(&r, proc);
-    if(proc.id==e->id){ break;}
-
-}
-printf("%d  and %d ", proc.id, (int)proc.te);
-
-
-supress(e, L);
- proc.te=(int)proc.te %60;
- sleep(proc.te);
- fflush(stdout);
-printf("its done \n");
- decalage(L, m);
- affichageListepar(L);
- affichtab(m );
-
-
-
-
-printf("well good job!");
-
-
-dessineeer(L, m);
-
-
-   printf("its good \n");
-
-
-*/
     return 0;
-}
 
+}
 
