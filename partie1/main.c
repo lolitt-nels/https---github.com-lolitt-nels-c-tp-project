@@ -47,7 +47,7 @@ typedef struct tab{
 
 
 
-
+//processus avec priorite
 typedef struct process{
    int id; //identite
    float ia;  //instant arrive
@@ -56,16 +56,19 @@ typedef struct process{
    int prio;
 }process;
 
+//noeud de file de processus de priorite
 typedef struct nodeFP{
-   struct process data;
+   struct process data;//information
    struct nodeFP *svt;
 }nodeFP;
 
+//file de pile
 typedef struct fileP{
   nodeFP* tete;
   nodeFP* queue;
 }fileP;
 
+//cellule de pile de file avec priorite
 typedef struct elem{
 int prio;
 struct fileP F;
@@ -97,10 +100,12 @@ int PileVide(Pile pile) {
 
 // Empiler un élément sur la pile
 void Empiler(Pile  *pile,fileP f, int n) {
+   //allocation et initialisation des attributs du nouvel element
     elem* nouvelElem = (elem*)malloc(sizeof(elem));
     nouvelElem->prio=n;
    nouvelElem->F.queue=f.queue;
    nouvelElem->F.tete=f.tete;
+    //mise a jour pointeur de pile
     nouvelElem->svt = *pile ;
     *pile = nouvelElem ;
 
@@ -111,17 +116,18 @@ elem Depiler(Pile* pile) {
      elem f;
 
      if (*pile == NULL) {
-        // Stack is empty, return an element with all attributes set to 0
-        f.prio = 0;
+        // pile vide, retourner un element avec des atributs nul
+         f.prio = 0;
         f.F.tete = NULL;
         f.F.queue = NULL;
         return f;
     }
+    //recuperer les attribut du sommet de pile
      f.F.queue= (*pile)->F.queue;
      f.F.tete=(*pile)->F.tete;
      f.prio=(*pile)->prio;
     elem* temp = (*pile)->svt;
-    //*pile = temp->svt;
+//mise a jour du pointeur et liberer la memoire
     free(*pile);
     *pile=temp;
     printf("pile apres %p", *pile);
@@ -142,15 +148,16 @@ elem SommetPile(Pile* pile) {
 }
 
 
-///prefonctions de fileP
-
+//primitives de fileP  (file de processus a priorite)
 void initfileP(fileP *f){
   f->tete=NULL;
   f->queue=NULL;
 
 }
 
+//ajouter un processus a la file de processus de priorite
 void enfilerP(fileP *f , process x ){
+   //allocation et initialisation du nouvel element
     nodeFP* newf=(nodeFP*)malloc(sizeof(nodeFP));
     newf->data.id = x.id;
     newf->data.ia=x.ia;
@@ -158,18 +165,22 @@ void enfilerP(fileP *f , process x ){
     newf->data.prio=x.prio;
     newf->data.taille=x.taille;
     newf->data.prio=x.prio;
+   //mise a jour du chainage a la queu de file
    newf->svt=NULL;
-   if ( f->queue == NULL) {
-        f->tete=newf; f->queue=newf; }//file vide
+    //si la file est vide , la tete et la queu pointent vers le nouvel element
+  if ( f->queue == NULL) {
+        f->tete=newf; f->queue=newf; }
    else{ f->queue->svt=newf; f->queue=newf;  };
 
 }
 
+
+//supprimer et retourner le premier processus de la fileP
 process defilerP(fileP *f ){
     nodeFP* temp;
     process x;
    if (f->tete == NULL) {
-        // Queue is empty, return a process with all attributes set to 0
+        // fileP vide, retourner un process avec tout les attributs mis a  0
         x.id = 0;
         x.ia = 0.0;
         x.te = 0.0;
@@ -177,6 +188,7 @@ process defilerP(fileP *f ){
         x.prio = 0;
         return x;
     }
+   //mise a jour du pointeur de tete de file et liberer l'element
     temp = (f->tete);
     x.ia=((f->tete)->data).ia;
     x.id=((f->tete)->data).id;
@@ -185,20 +197,21 @@ process defilerP(fileP *f ){
     x.prio=((f->tete)->data).prio;
     f->tete=(f->tete)->svt;
     if(f->tete==NULL){ f->queue=NULL;  }
+
     free(temp);
     return x;
 }
 
-
+//retourner le premier element de la file sans le supprimer
  process TeteFileP(fileP *f){
   return ((f->tete)->data);
  }
 
-
+//verifier si la fileP est vide
 int FileVideP(fileP *f){
       if(f->tete==NULL) {return 1;}  else{ return 0;}
 }
-//affiche et affecte le tout dans r puis f=r
+//affiche la file de process
 void AffichefileP(fileP f){
     process x;
     fileP r;
@@ -214,21 +227,30 @@ void AffichefileP(fileP f){
   f=r;}
 }
 
+
+//affiche la pile de file
 void affichepile(Pile p){
      Pile r;
      elem x;
      InitPile(&r);
+
      printf("%d", PileVide(p));
      while(!PileVide(p)){
+   //depiler le sommet de pile
         x=Depiler(&p); printf("depilina\n");
         printf("x.prio=%d , x.F.tete= %p , x.F.queu=%p ", x.prio, x.F.tete ,x.F.queue);
+       //l'empiler dans une pile intermediaire
         Empiler(&r, x.F , x.prio);
         printf("la file est : \n");
+        //afficher la fileP
         AffichefileP(x.F);
      }
+     //remmetre dans la pile ses elements
      p=r;
 }
-//posdep=id lekhr tea queu
+
+
+//creer une file de processus avec priorite
 fileP createfileP(int n, int j, int posdep){
   srand(time(NULL));
   float r_ia=0;
@@ -252,17 +274,21 @@ return (F);
 }
 
 
+//creer le reste de partition apres allocation si il existe
 void createreste2(node* p , process x ){
- node* q=(node*)malloc(sizeof(node)); printf("creation node rest \t");
+ node* q=(node*)malloc(sizeof(node));
  q->data.etat=0;
  q->data.taille= p->data.taille - x.taille ;
- p->data.taille= x.taille;//mise a jour taille de p
+ //mise a jour taille de p
+ p->data.taille= x.taille;
  q->data.adr= (p->data.adr) + (p->data.taille);
  //chainage
  q->svt=p->svt;
  p->svt=q;
 
 }
+
+
 void FirstfitP(liste L, fileP *F, int *n, fileP *h, tab **T) {
     // Initialize variables
     int cpt=0;
@@ -273,14 +299,14 @@ void FirstfitP(liste L, fileP *F, int *n, fileP *h, tab **T) {
     int trouve;
     tab *Q = NULL;
 
-    // Loop through each process in the file
+    // boucler pour chaque processus de la file
     while (i < *n) {
         x = defilerP(F);
         enfilerP(h, x);
         p = L;
         trouve = 0;
 
-        // Check for available space in the list
+        // verifier si l'espace est disponible selon la politique FirstFit
         while (p != NULL && trouve == 0) {
             if (p->data.etat == 0 && p->data.taille >= x.taille) {
                 Q = (tab *)malloc(sizeof(tab));
@@ -298,10 +324,10 @@ void FirstfitP(liste L, fileP *F, int *n, fileP *h, tab **T) {
             p = p->svt;
         }
 
-        // If no space is available, enqueue the process back to the file
+        // si pas d'espaces, enfiler le process de nouveau dans sa file
         if (trouve == 0) {
             enfilerP(F, x);
-            cpt++; // Increment the number of processes not allocated
+            cpt++; // Incrementer le nombre de processecus non alloue
         }
         i++;
     }
@@ -314,14 +340,15 @@ void BestFit2(liste L, fileP *F , int* n , fileP *h, tab** T){
  liste p;
  int i=0;
  liste pmin;
- process x; printf("l= %p", L);
- p=L;printf("p= %p", p);
+ process x;
+ p=L;
  tab* Q=NULL;
 
- while(i< *n )//normalement i use something like boucle pour cuz i know num of elements
+  // boucler pour chaque processus de la file
+ while(i< *n )
  { x=defilerP(F);  printf("defilina w enfilina \n");
    enfilerP(h, x);
-    pmin=NULL;      //initialiser min
+    pmin=NULL;
    p=L;
    while(p!=NULL){
     if( (p->data.etat== 0 ) && ((p->data.taille)>=x.taille) ){
@@ -333,34 +360,44 @@ void BestFit2(liste L, fileP *F , int* n , fileP *h, tab** T){
     }
 
    if(pmin!= NULL){
+         //creer le lien d'affectation dans la table des affectations
          Q=(tab*)malloc(sizeof(tab));
-                   Q->id=x.id; Q->affect=pmin; printf("tc id = %d  tc affect= %p et q=%p \n", Q->id , Q->affect, Q);
+                   Q->id=x.id; Q->affect=pmin;
                    Q->svt=*T; *T=Q;
-                   //affectation
-                  pmin->data.etat=1;   //1 c  occupe
+
+                  pmin->data.etat=1;
+                  //creer le risidue de partition si taille supeerieur
                 if ((pmin->data.taille)>x.taille ){
                         createreste2( pmin , x );}
-                  }
+                        }
+
+       //si pas d'espace , remmetre en queu de file
   if(pmin==NULL){ enfilerP(F, x); cpt++;  }
  i++;
  }
 *n=cpt;
 }
 
+
+
 void WorstFit2(liste L, fileP *F , int *n , fileP *h, tab** T){
+
  //initialisation
  int cpt=0;
  liste p;
  int i=0;
  liste pmax;
- process x; printf("l= %p", L);
- p=L;printf("p= %p", p);
- tab* Q=NULL;
- while( i< *n )
- { x=defilerP(F);
-   enfilerP(h, x);
-    pmax=NULL;
-    p=L;
+ process x;
+ p=L;
+tab* Q=NULL;
+
+//boucler pour chaque processus
+  while( i< *n )
+   { x=defilerP(F);
+     enfilerP(h, x);
+      pmax=NULL;
+      p=L;
+   //verifier la disponibilite de l'espacce selon la politique WorstFIt
    while(p!=NULL){
     if( (p->data.etat== 0 ) && ((p->data.taille)>=x.taille) ){
         if(pmax==NULL){pmax=p;  }
@@ -370,13 +407,17 @@ void WorstFit2(liste L, fileP *F , int *n , fileP *h, tab** T){
     p=p->svt;
    }
    if(pmax!= NULL){
+               //allocation dans la table des allocations
                Q=(tab*)malloc(sizeof(tab));
                    Q->id=x.id; Q->affect=pmax; printf("tc id = %d  tc affect= %p \n", Q->id , Q->affect);
                    Q->svt=*T; *T=Q;//affectation
-                  pmax->data.etat=1;//1 devient occupe
+                  //mise a jour etat de la partition
+                  pmax->data.etat=1;
+                  //creation du reste de partition si besoin
                   if ((pmax->data.taille)>x.taille ){
                         createreste2( pmax , x );}
                   }
+  // si pas d'espace disponible , remmetre en queue de file
   if(pmax==NULL){ enfilerP(F, x); cpt++;  }
    i++;
    }
@@ -1103,7 +1144,7 @@ tab* table_2;
                                          case 3: nbr=nbr+nbr3; printf("on est la nbr= %d Nbr1= %d", nbr, nbr3); nbr3=nbr; break;
                                          }
                      printf("khrejna mel p prio switch \n");
-                 //  if(element_inter.F.tete!= NULL){ printf("on est la aussi \n"); element_inter.F.queue->svt=p.F.tete; p.F.tete=element.F.tete;}
+                   if(element_inter.F.tete!= NULL){ printf("on est la aussi \n"); element_inter.F.queue->svt=p.F.tete; p.F.tete=element.F.tete;}
      switch (politique){
             case 1 : printf("we're here\n"); FirstfitP(L, &p.F, &nbr, &element.F ,&table_2); printf("we finished \n"); break;
             case 2 : BestFit2(L, &p.F, &nbr, &element.F ,&table_2); break;
