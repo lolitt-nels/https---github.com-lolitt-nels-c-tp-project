@@ -701,12 +701,12 @@ void affichtab(tab *T  ){
    printf("\t affichage de la table des affectations:\n");
 
    if(q==NULL){printf("Aucun processus affecte");}
-
+else{
    while(q!=NULL){
         printf("---------------------------------------------------\n");
         printf(" | processus %d  est affecte a l'adresse: %d ko | \n", q->id, q->affect->data.adr);
         q=q->svt;
-   }
+   }}
   }
 
 
@@ -729,29 +729,46 @@ void supress(tab *e, liste L){
         free(e); printf("we freed e too \n");
 }
 
-//recherche du processus arrive en premier pour l'executer
-tab* rech_ptit_id(tab* T){
-       tab* q;
-       tab* p=T;
-       tab* pmin=T;
-       //trouve le id du processus arrive en premier parmis ceux affecte a des partitions
-       while(p!=NULL){
-        if(p->id<pmin->id){pmin=p;}
-        p=p->svt;
-        } p=T;
-        q=T;
-      //detacher ,sans supprimer, le processus du tableau des affectations (liste)
-      while(p!=NULL&& p!=pmin){
-        q=p; p=p->svt;
-      }
+//recherche du processus arrive en premier pour l'executer et le detache de la table des affectations
+tab* rech_ptit_id(tab** T) {
+    tab* q;
+    tab* p = *T;
+    tab* pmin = *T;
 
-       if(p==T){T=T->svt; p->svt=NULL;}
-       else{q->svt=p->svt; p->svt=NULL;}
-       if(p==T && T->svt==NULL){T=NULL;printf("on a remis t a null");}
-      printf("processus a executer : %d ", p->id);
-return(p);
+    // Find the process with the smallest id among those assigned to partitions
+    while (p != NULL) {
+        if (p->id < pmin->id) {
+            pmin = p;
+        }
+        p = p->svt;
+    }
+
+    p = *T;
+    q = *T;
+
+    // Detach the process from the list of assignments
+    while (p != NULL && p != pmin) {
+        q = p;
+        p = p->svt;
+    }
+
+    if (p == *T) {
+        *T = (*T)->svt;
+        p->svt = NULL;
+    } else {
+        q->svt = p->svt;
+        p->svt = NULL;
+    }
+
+    // Check if p is the last element and set T to NULL
+    if (p == *T && p->svt == NULL) {
+        *T = NULL;
+        printf("T has been set to NULL   t= %p ", *T);
+    }
+
+    printf("Process to execute: %d", p->id);
+    return p;
 }
-
 
 
 //rearanger les partition apres chaque supression de processus si il y a moyen
@@ -939,7 +956,7 @@ tab* table_2;
    file r;
 
     do{
-             e=rech_ptit_id(m);
+             e=rech_ptit_id(&m);
             initfile(&r);
             processus proc;
             //file h c la file qui sauvgarde la toute premiere file avec toutes les valeur
@@ -986,7 +1003,7 @@ tab* table_2;
              getchar();
             dessineeer(L,m);
          //   Affichefile(h);
-            printf("file vide =%d ",FileVide(&h));
+            printf("file vide h=%d  ",FileVide(&h));
                          if(!FileVide(&f)){ printf("dkhelna f switch 2eme\n");
                                 switch(politique){
 
@@ -999,7 +1016,7 @@ tab* table_2;
                                           }
 
                          }
-                         printf("khrejna m switch 2eme");
+
                             }while (!FileVide(&h));
 
 
@@ -1020,26 +1037,26 @@ tab* table_2;
            affichageListepar(L);
            printf("appuiez sur un bouton pour avoir l'affichage graphique\n");
            getchar();
-
+           dessineeer(L, table_2);
            //remplissage de la pile selon les priorites
                  printf("donnez le nombre de processes de priorite 1 \n");
                  scanf("%d", &nbr1);
                  g=createfileP(nbr1, 1, posdeb);
                  posdeb=g.queue->data.id;
-                 AffichefileP(g);
+                 //AffichefileP(g);
                  Empiler(&pile,g, 1);
 
                  printf("donnez le nombre de processes de priorite 2 \n");
                  scanf("%d", &nbr2);
                  g=createfileP(nbr2, 2, posdeb);
                  posdeb=g.queue->data.id;
-                 AffichefileP(g);
+                 //AffichefileP(g);
                  Empiler(&pile,g, 2);
 
                  printf("donnez le nombre de processes de priorite 3 \n");
                  scanf("%d", &nbr3);
                  g=createfileP(nbr3, 3, posdeb);
-                 AffichefileP(g);
+                 //AffichefileP(g);
                  Empiler(&pile,g, 3);
 
 
@@ -1047,7 +1064,7 @@ tab* table_2;
      Pile intermedo;
      InitPile(&intermedo);
 
-      //affichage de la pile
+ /*    //affichage de la pile
        for(int z=3; z>0; z--){
        printf(" ----------------affichage de la pile de priorite : %d-----------------\n ", z);
          elem depp=Depiler(&pile);
@@ -1060,7 +1077,7 @@ tab* table_2;
          elem depp=Depiler(&intermedo);
             Empiler(&pile, depp.F, depp.prio);
         }
-          printf("vide= %d  et pile =%p \n", PileVide(pile), pile);
+  */        printf("vide= %d  et pile =%p \n", PileVide(pile), pile);
 
 
 
@@ -1075,29 +1092,37 @@ tab* table_2;
          elem element3;
          initfileP(&element_inter.F);
          initfileP(&element.F);
+         int count;
          int nbr=0;
          printf("\n pile est %d", PileVide(pile));
             do{
                    elem p=Depiler(&pile);
                     switch(p.prio){
-                                         case 1: nbr+=nbr1; nbr1=nbr; break;
-                                         case 2: nbr+=nbr2; nbr2=nbr; break;
-                                         case 3: nbr+=nbr3; nbr3=nbr; break;
+                                         case 1: nbr= nbr+nbr1; printf("on est la et nbr= %d Nbr1= %d", nbr, nbr1); nbr1=nbr; break;
+                                         case 2: nbr= nbr+nbr2; printf("on est la nbr= %d Nbr1= %d", nbr, nbr2); nbr2=nbr; break;
+                                         case 3: nbr=nbr+nbr3; printf("on est la nbr= %d Nbr1= %d", nbr, nbr3); nbr3=nbr; break;
                                          }
-                   if(element_inter.F.tete!= NULL){element_inter.F.queue->svt=p.F.tete; p.F.tete=element.F.tete;}
+                     printf("khrejna mel p prio switch \n");
+                 //  if(element_inter.F.tete!= NULL){ printf("on est la aussi \n"); element_inter.F.queue->svt=p.F.tete; p.F.tete=element.F.tete;}
      switch (politique){
-            case 1 : FirstfitP(L, &p.F, &nbr, &element.F ,&table_2); break;
+            case 1 : printf("we're here\n"); FirstfitP(L, &p.F, &nbr, &element.F ,&table_2); printf("we finished \n"); break;
             case 2 : BestFit2(L, &p.F, &nbr, &element.F ,&table_2); break;
             case 3 : WorstFit2(L, &p.F, &nbr, &element.F ,&table_2); break;
             default : printf("vous n'avez pas choisi de politique convenable");}
+            //initialiser le compteur avec le nombre de processus affecte
+             switch(p.prio){
+                                         case 1: count=nbr1-nbr; printf("count= %d \n", count); break;
+                                         case 2: count=nbr2-nbr; printf("count= %d \n", count); break;
+                                         case 3: count=nbr3-nbr; printf("count= %d \n", count); break;
+                                         }
 
                affichtab(table_2 );
                     printf("appuiez sur un bouton pour avoir l'affichage graphique\n");
                 getchar();
                 dessineeer(L, table_2);
-
+        while(count>0){ printf("\n iteration number %d \n", count);
            fileP ri;
-            e=rech_ptit_id(table_2);
+            e=rech_ptit_id(&table_2);
             initfileP(&ri);
             process pro;
               while((!FileVideP(&element.F)) ){
@@ -1134,6 +1159,8 @@ tab* table_2;
              printf("Appuiez sur un bouton pour voir l'etat de la liste apres rearangement:\n");
              getchar();
             dessineeer(L,table_2);
+            count--; //decrementer le compteur
+        };
 
               element_inter.F.tete=p.F.tete;
               element_inter.F.queue=p.F.queue;
