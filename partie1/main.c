@@ -785,7 +785,7 @@ void supress(tab *e, liste L){
         if(q!=NULL){q->data.etat=0;}
             //si partition suivante est libre , fusionner pour creer partition plus grande
        node* suiv=q->svt;
-       if (suiv->data.etat==0){q->data.taille=q->data.taille + suiv->data.taille; q->svt=suiv->svt; free(suiv);printf("we freed q.svt taille de q jdida %d\n", q->data.taille);}
+       if (suiv->data.etat==0){q->data.taille=q->data.taille + suiv->data.taille; q->svt=suiv->svt; free(suiv);}
         //liberer l'element de la table des affectations
         free(e);
 }
