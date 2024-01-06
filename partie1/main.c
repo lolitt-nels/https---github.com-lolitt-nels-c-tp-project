@@ -223,37 +223,39 @@ void AffichefileP(fileP* f){
     } else {
         while (FileVideP(f) != 1) {
             process x = defilerP(f);
-            printf("____________________________________________________________________________________________________\n");
-            printf("|Id= %d  instant d'arrive=%0.2f s temps d'execution=%0.2f s taille= %d ko prio=%d       |\n", x.id, x.ia, x.te, x.taille, x.prio);
+            printf("_____________________________________________________________________________________________\n");
+            printf("|Id= %d  | instant d'arrive=%0.2f s |temps d'execution=%0.2f s | taille= %d ko prio=%d       |\n", x.id, x.ia, x.te, x.taille, x.prio);
             enfilerP(&tempQueue, x);
         }
         *f = tempQueue;
     }
 printf("\n \n \n ");
 }
-/*
+
 //affiche la pile de file
-//void affichepile(Pile *p){
+void affichepile(Pile *pile){
         Pile temp;
-    initPile(&temp);
+    InitPile(&temp);
+
+     for(int z=3; z>0; z--){
+       printf(" ----------------affichage de la pile de priorite : %d-----------------\n ", z);
+         elem depp=Depiler(pile);
+
+            AffichefileP(&depp.F);
+            Empiler(&temp, depp.F, depp.prio);
+        }
+
+          for(int z=3; z>0; z--){
+         elem depp=Depiler(&temp);
+            Empiler(pile, depp.F, depp.prio);
+        }
 
 
-    // Pop elements from the original stack and display them
-    while (PileVide(p) != 1) {
-        process x = depiler(p);
-        printf("* id = %d * instant d'arrive = %0.2f * temps d'exe = %0.2f * taille = %d *\n", x.id, x.ia, x.te, x.taille);
-        empiler(&temp, x);
-    }
 
-    // Push elements back into the original stack
-    while (PileVide(&temp) != 1) {
-        processus x = depiler(&temp);
-        empiler(p, x);
-    }
 
     printf("\n\n");
 }
-*/
+
 
 //creer une file de processus avec priorite
 fileP createfileP(int n, int j, int posdep){
@@ -490,7 +492,7 @@ liste Listepar(){
     p = L;
     while(p != NULL){
             printf("............................................................\n");
-            printf(". adresse:%d ko  ||   taille:%d ko  ||   etat:   %d   ||\n", p->data.adr, p->data.taille , p->data.etat);
+            printf(". adresse:%d ko  ||   taille:%d ko  ||   etat:   %d       ||\n", p->data.adr, p->data.taille , p->data.etat);
             p = p->svt;
     }
     printf("\n \n \n ");
@@ -523,9 +525,7 @@ processus defiler(file *f ){
     nodeF* temp;
     processus x;
     if (f->tete == NULL) {
-        // Queue is already empty, handle the error or return a default value
-        // For example, you can throw an error or return a default processus object.
-        // Here, let's assume we return a default processus object with all values set to 0.
+    //creer un processus a 0 si vide pour le retourner
         processus emptyProcessus;
         emptyProcessus.ia = 0;
         emptyProcessus.id = 0;
@@ -562,6 +562,7 @@ void Affichefile( file* f) {
 
     while (FileVide(f) != 1) {
         processus x = defiler(f);
+        printf("*****************************************************************************\n");
         printf("* id = %d * instant d'arrive = %0.2f * temps d'exe = %0.2f * taille = %d *\n", x.id, x.ia, x.te, x.taille);
         enfiler(&tempQueue, x);
     }
@@ -1064,7 +1065,7 @@ switch(partie){
 
 
                        //allouer les processus restants s'il y en a
-                         if(!FileVide(&f)){ printf("dkhelna f switch 2eme\n");
+                         if(!FileVide(&f)){
                                 switch(politique){
 
                                           case 1 :  Firstfit(L, &f, &n , &h, &m);
@@ -1134,22 +1135,11 @@ switch(partie){
                    printf("encore file \n ");
 
 
-     Pile intermedo;
-     InitPile(&intermedo);
+
 
    //affichage de la pile
-       for(int z=3; z>0; z--){
-       printf(" ----------------affichage de la pile de priorite : %d-----------------\n ", z);
-         elem depp=Depiler(&pile);
+                           affichepile(&pile);
 
-            AffichefileP(&depp.F);
-            Empiler(&intermedo, depp.F, depp.prio);
-        }
-        printf("\n \n on va remmtre dans p \n");
-          for(int z=3; z>0; z--){
-         elem depp=Depiler(&intermedo);
-            Empiler(&pile, depp.F, depp.prio);
-        }
 
 
         //choix des politique
@@ -1171,23 +1161,23 @@ switch(partie){
 
                     //nombre de processus pour chaque file de priorite
                     switch(p.prio){
-                                         case 1: nbr= nbr+nbr1; printf("on est la et nbr= %d Nbr1= %d", nbr, nbr1); nbr1=nbr; break;
-                                         case 2: nbr= nbr+nbr2; printf("on est la nbr= %d Nbr1= %d", nbr, nbr2); nbr2=nbr; break;
-                                         case 3: nbr=nbr+nbr3; printf("on est la nbr= %d Nbr1= %d", nbr, nbr3); nbr3=nbr; break;
+                                         case 1: nbr= nbr+nbr1;  nbr1=nbr; break;
+                                         case 2: nbr= nbr+nbr2;  nbr2=nbr; break;
+                                         case 3: nbr=nbr+nbr3;  nbr3=nbr; break;
                                          }
-                     printf("khrejna mel p prio switch \n");
+
                    //remettre les processus de taille superieur non allouer en queu de file de la taille inferieur suivante
-                   if(element_inter.F.tete!= NULL){ printf("on est la aussi \n"); element_inter.F.queue->svt=p.F.tete; p.F.tete=element.F.tete;}
+                   if(element_inter.F.tete!= NULL){  element_inter.F.queue->svt=p.F.tete; p.F.tete=element.F.tete;}
      switch (politique){
-            case 1 : printf("we're here\n"); FirstfitP(L, &p.F, &nbr, &element.F ,&table_2); printf("we finished \n"); break;
+            case 1 : FirstfitP(L, &p.F, &nbr, &element.F ,&table_2); break;
             case 2 : BestFit2(L, &p.F, &nbr, &element.F ,&table_2); break;
             case 3 : WorstFit2(L, &p.F, &nbr, &element.F ,&table_2); break;
             default : printf("vous n'avez pas choisi de politique convenable");}
             //initialiser le compteur avec le nombre de processus affecte
              switch(p.prio){
-                                         case 1: count=nbr1-nbr; printf("count= %d \n", count); break;
-                                         case 2: count=nbr2-nbr; printf("count= %d \n", count); break;
-                                         case 3: count=nbr3-nbr; printf("count= %d \n", count); break;
+                                         case 1: count=nbr1-nbr; break;
+                                         case 2: count=nbr2-nbr; break;
+                                         case 3: count=nbr3-nbr; break;
                                          }
 
                printf(" \n affichage de la table des affectations apres allocation : \n \n");
@@ -1198,7 +1188,7 @@ switch(partie){
                 dessineeer(L, table_2);
         while(count>0){ printf("\n iteration numero %d \n", count);
            fileP ri;
-            e=rech_ptit_id(&table_2);
+            e=rech_ptit_id(&table_2); printf("priorite =%d \n", p.prio);
             initfileP(&ri);
             process pro;
               while((!FileVideP(&element.F)) ){
