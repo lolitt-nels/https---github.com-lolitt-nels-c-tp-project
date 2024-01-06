@@ -4,11 +4,11 @@
 #include <unistd.h>
 #include <raylib.h>
 
-
+//partition de la memoire
 typedef struct partition{
-    int adr;
-    int taille;
-    int etat;
+    int adr; //adresse de la partition
+    int taille; //taille de la partition
+    int etat; //etat de la partition
 }partition;
 //etat 1 occupe ,0 libre
 typedef struct node {
