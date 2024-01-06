@@ -211,44 +211,49 @@ process defilerP(fileP *f ){
 int FileVideP(fileP *f){
       if(f->tete==NULL) {return 1;}  else{ return 0;}
 }
+
+
 //affiche la file de process
-void AffichefileP(fileP f){
-    process x;
-    fileP r;
-    printf("debut affichage\n");
-    initfileP(&r);
-    if (FileVideP(&f)==1){printf("file vide");}
-  else{  while (FileVideP(&f)!=1){
-        x=defilerP(&f);
-        printf("id= %d  ia=%0.2f te=%0.2f taille= %d prio=%d \n", x.id , x.ia , x.te , x.taille , x.prio);
+void AffichefileP(fileP* f){
+       fileP tempQueue;
+    initfileP(&tempQueue);
 
-        enfilerP(&r , x );
+    if (FileVideP(f) == 1) {
+        printf("La file est vide .\n");
+    } else {
+        while (FileVideP(f) != 1) {
+            process x = defilerP(f);
+            printf("____________________________________________________________________________________________________\n");
+            printf("|Id= %d  instant d'arrive=%0.2f s temps d'execution=%0.2f s taille= %d ko prio=%d       |\n", x.id, x.ia, x.te, x.taille, x.prio);
+            enfilerP(&tempQueue, x);
+        }
+        *f = tempQueue;
     }
-  f=r;}
+printf("\n \n \n ");
 }
-
-
+/*
 //affiche la pile de file
-void affichepile(Pile p){
-     Pile r;
-     elem x;
-     InitPile(&r);
+//void affichepile(Pile *p){
+        Pile temp;
+    initPile(&temp);
 
-     printf("%d", PileVide(p));
-     while(!PileVide(p)){
-   //depiler le sommet de pile
-        x=Depiler(&p); printf("depilina\n");
-        printf("x.prio=%d , x.F.tete= %p , x.F.queu=%p ", x.prio, x.F.tete ,x.F.queue);
-       //l'empiler dans une pile intermediaire
-        Empiler(&r, x.F , x.prio);
-        printf("la file est : \n");
-        //afficher la fileP
-        AffichefileP(x.F);
-     }
-     //remmetre dans la pile ses elements
-     p=r;
+
+    // Pop elements from the original stack and display them
+    while (PileVide(p) != 1) {
+        process x = depiler(p);
+        printf("* id = %d * instant d'arrive = %0.2f * temps d'exe = %0.2f * taille = %d *\n", x.id, x.ia, x.te, x.taille);
+        empiler(&temp, x);
+    }
+
+    // Push elements back into the original stack
+    while (PileVide(&temp) != 1) {
+        processus x = depiler(&temp);
+        empiler(p, x);
+    }
+
+    printf("\n\n");
 }
-
+*/
 
 //creer une file de processus avec priorite
 fileP createfileP(int n, int j, int posdep){
@@ -484,9 +489,8 @@ liste Listepar(){
     liste p;
     p = L;
     while(p != NULL){
-            printf("...........................................................\n");
-            printf("adresse:%d ko  ||   taille:%d ko  ||   etat:   %d   ||\n", p->data.adr, p->data.taille , p->data.etat);
-            printf("...........................................................\n");
+            printf("............................................................\n");
+            printf(". adresse:%d ko  ||   taille:%d ko  ||   etat:   %d   ||\n", p->data.adr, p->data.taille , p->data.etat);
             p = p->svt;
     }
     printf("\n \n \n ");
@@ -550,21 +554,26 @@ int FileVide(file *f){
       if(f->tete==NULL) {return 1;}  else{ return 0;}
 }
 //affiche la file
-void Affichefile(file f){
-    processus x;
-    file r;
-    printf("~~~~~~~~~~~~debut de l'affichage de la File de processus:~~~~~~~~~ \n \n");
-    initfile(&r);
-    while (FileVide(&f)!=1){
-        x=defiler(&f);
-        printf("**************************************************************************\n");
-        printf("* id = %d * instant d'arrive =%0.2f * temps d'exe =%0.2f * taille= %d * \n", x.id , x.ia , x.te , x.taille );
+void Affichefile( file* f) {
+       file tempQueue;
+    initfile(&tempQueue);
 
-        enfiler(&r , x );
+    printf("~~~~~~~~~~~~ Displaying the Queue ~~~~~~~~~~~~\n\n");
+
+    while (FileVide(f) != 1) {
+        processus x = defiler(f);
+        printf("* id = %d * instant d'arrive = %0.2f * temps d'exe = %0.2f * taille = %d *\n", x.id, x.ia, x.te, x.taille);
+        enfiler(&tempQueue, x);
     }
-    f=r;
-    printf("\n \n \n");
+
+    while (FileVide(&tempQueue) != 1) {
+        processus x = defiler(&tempQueue);
+        enfiler(f, x);
+    }
+
+    printf("\n\n");
 }
+
 
 file createfile(int n){
   srand(time(NULL));
@@ -615,13 +624,13 @@ void BestFit(liste L, file *F ,int *n, file *h, tab** T){
         liste pmin;
         processus x;
         p=L;
-        file *r;
-printf("to here");
+
+
 
 
         tab* Q=NULL;
  while(i<*n )//pour chaque element de la file
- { x=defiler(F); printf("on defile");
+ { x=defiler(F);
    enfiler(h, x);
     pmin=NULL;      //initialiser min
    p=L;
@@ -960,7 +969,7 @@ switch(partie){
    printf("Veuillez donner le nombre de processsus : \n"); //n = nombre de processus
    scanf("%d", &n);
    f=createfile(n);
-   Affichefile(f);
+   Affichefile(&f);
 
 
 
@@ -996,9 +1005,9 @@ switch(partie){
   getchar();
  affichageListepar(L);
  printf("Affichage de la file apres affectation \n");
- Affichefile(f);
- //printf("h jidida\n");
- //Affichefile(*h);
+ Affichefile(&f);
+
+
   affichtab(m );
 
   dessineeer(L, m);
@@ -1033,29 +1042,26 @@ switch(partie){
             }}
 
             h=r;
-            printf("\n file vide h apre remplissage de r %d", FileVide(&h));
-            printf("affichage de h\n");
-         //   Affichefile(h);
-           //  printf("la 2eme \n");
-             //Affichefile(h);
+
 
             printf("Fin d'execution ,processus supprime..\n");
             //affichage des elements apres execution
 
             affichtab(m ); //affichage de la table
             affichageListepar(L);//affichage de la liste de partition
-             printf("Appuiyez sur un bouton pour avoir l'affichage de la liste apres supression\n");
+             printf("    Appuiyez sur un bouton pour avoir l'affichage de la liste apres supression\n");
              getchar();
             dessineeer(L,m);
-
+               printf("   affichage de la copie de la file apres supression \n ");
+            Affichefile(&h);
             //rearanger les partiton et affichages des elements
             decalage(L, m);
             affichageListepar(L);
-             printf("Appuiez sur un bouton pour voir l'etat de la liste apres rearangement:\n");
+             printf("  Appuiez sur un bouton pour voir l'etat de la liste apres rearangement:\n");
              getchar();
             dessineeer(L,m);
-         //   Affichefile(h);
-            printf("file vide h=%d  ",FileVide(&h));
+
+
 
                        //allouer les processus restants s'il y en a
                          if(!FileVide(&f)){ printf("dkhelna f switch 2eme\n");
@@ -1063,13 +1069,14 @@ switch(partie){
 
                                           case 1 :  Firstfit(L, &f, &n , &h, &m);
                                                   break;
-                                          case 2 : printf("jina hna"); BestFit(L, &f, &n,&h, &m);
+                                          case 2 :  BestFit(L, &f, &n,&h, &m);
                                                   break;
-                                          case 3 : printf("jina l worstfit dakhel switch 2\n"); WorstFit(L, &f, &n , &h, &m);
+                                          case 3 :  WorstFit(L, &f, &n , &h, &m);
                                                   break;
                                           }
 
                          }
+
 
                             }while (!FileVide(&h));
 
@@ -1087,7 +1094,7 @@ switch(partie){
  printf("debut de la simulation de l'allocation avec priorite : \n \n \n");
 
 
-      initfileP(&H);
+
       initfileP(&g);
       Pile pile;
       InitPile(&pile);
@@ -1106,7 +1113,7 @@ switch(partie){
                  scanf("%d", &nbr1);
                  g=createfileP(nbr1, 1, posdeb);
                  posdeb=g.queue->data.id;
-                 //AffichefileP(g);
+                 AffichefileP(&g);
                  Empiler(&pile,g, 1);
 
                  //remplir les files une a une
@@ -1116,26 +1123,26 @@ switch(partie){
                  scanf("%d", &nbr2);
                  g=createfileP(nbr2, 2, posdeb);
                  posdeb=g.queue->data.id;
-                 //AffichefileP(g);
+                 AffichefileP(&g);
                  Empiler(&pile,g, 2);
 
                  printf("donnez le nombre de processes de priorite 3 \n");
                  scanf("%d", &nbr3);
                  g=createfileP(nbr3, 3, posdeb);
-                 //AffichefileP(g);
+                 AffichefileP(&g);
                  Empiler(&pile,g, 3);
-
+                   printf("encore file \n ");
 
 
      Pile intermedo;
      InitPile(&intermedo);
 
- /*    //affichage de la pile
+   //affichage de la pile
        for(int z=3; z>0; z--){
        printf(" ----------------affichage de la pile de priorite : %d-----------------\n ", z);
          elem depp=Depiler(&pile);
 
-            AffichefileP(depp.F);
+            AffichefileP(&depp.F);
             Empiler(&intermedo, depp.F, depp.prio);
         }
         printf("\n \n on va remmtre dans p \n");
@@ -1143,8 +1150,6 @@ switch(partie){
          elem depp=Depiler(&intermedo);
             Empiler(&pile, depp.F, depp.prio);
         }
-  */        printf("vide= %d  et pile =%p \n", PileVide(pile), pile);
-
 
 
         //choix des politique
@@ -1185,7 +1190,7 @@ switch(partie){
                                          case 3: count=nbr3-nbr; printf("count= %d \n", count); break;
                                          }
 
-               printf(" \n affichage de la table des affectations apres allocation : \n \n")
+               printf(" \n affichage de la table des affectations apres allocation : \n \n");
 
                affichtab(table_2 );
                     printf("appuiez sur un bouton pour avoir l'affichage graphique\n");
