@@ -3,12 +3,13 @@
 #include <time.h>
 #include <unistd.h>
 #include <raylib.h>
+#include <string.h>
 
-//partition de la memoire
+
 typedef struct partition{
-    int adr; //adresse de la partition
-    int taille; //taille de la partition
-    int etat; //etat de la partition
+    int adr;
+    int taille;
+    int etat;
 }partition;
 //etat 1 occupe ,0 libre
 typedef struct node {
@@ -490,9 +491,12 @@ liste Listepar(){
  void affichageListepar(liste L){
     liste p;
     p = L;
+    char mot[10];
     while(p != NULL){
-            printf("............................................................\n");
-            printf(". adresse:%d ko  ||   taille:%d ko  ||   etat:   %d       ||\n", p->data.adr, p->data.taille , p->data.etat);
+            if(p->data.etat==0){strcpy(mot,"libre" );}
+            else{strcpy(mot,"occupe" );}
+            printf("......................................................................\n");
+            printf(". adresse:%d ko    ||   taille:%d ko    ||   etat:   %s         ||\n", p->data.adr, p->data.taille , mot);
             p = p->svt;
     }
     printf("\n \n \n ");
@@ -783,7 +787,7 @@ void supress(tab *e, liste L){
        node* suiv=q->svt;
        if (suiv->data.etat==0){q->data.taille=q->data.taille + suiv->data.taille; q->svt=suiv->svt; free(suiv);printf("we freed q.svt taille de q jdida %d\n", q->data.taille);}
         //liberer l'element de la table des affectations
-        free(e); printf("we freed e too \n");
+        free(e);
 }
 
 //recherche du processus arrive en premier pour l'executer et le detache de la table des affectations
@@ -940,7 +944,7 @@ SetTraceLogLevel(LOG_NONE);
 
 int main(){
 
-    printf("fait par: \n Bedrane Melissa et Abbas Imene \n \n \n \n \n ");
+    printf("\n realise par:\t     ###################\n \t \t     # Bedrane Melissa #\n \t \t     #  Abbas Imene    #\n\t \t     ###################\n \n \n \n ");
     int partie;
     int politique;
     liste L;
