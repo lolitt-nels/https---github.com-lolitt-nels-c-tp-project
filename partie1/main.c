@@ -356,7 +356,7 @@ void BestFit2(liste L, fileP *F , int* n , fileP *h, tab** T){
 
   // boucler pour chaque processus de la file
  while(i< *n )
- { x=defilerP(F);  printf("defilina w enfilina \n");
+ { x=defilerP(F); 
    enfilerP(h, x);
     pmin=NULL;
    p=L;
@@ -675,7 +675,6 @@ void Firstfit(liste L, file *F, int *n, file *h, tab **T) {
     int trouve;
 
     tab *Q = NULL;
-    printf("Starting the loop");
 
     while (i < *n) {
         x = defiler(F);
@@ -862,7 +861,7 @@ void decalage(liste L,tab * T){
                     t = t->svt;}
                     t->affect = p;
                 }
-             p=p->svt; printf("l7e9na 2\n");
+             p=p->svt; 
         }
      q = q->svt;//refaire pour toutes les partitions
     }
@@ -1251,27 +1250,6 @@ switch(partie){
 
 
 
-/*Pile pile;
-InitPile(&pile);
-printf("pile vide= %d \n \n", PileVide(pile));
-for(int k=1;k<=3;k++){
-  printf("donnez le nombre de processes de priorite %d \n", k);
-  int nbr;
-  scanf("%d", &nbr);
-  //fileP placeholder;
-g=createfileP(nbr, k);
-AffichefileP(g);
-//placeholder.queue=g.queue;
-//placeholder.tete=g.tete;
-printf("g.tete= %p et g.queu= %p \n", g.tete, g.queue);
-Empiler(&pile,g, k);
-printf("dans main pile= %p", pile);
-printf("pile vide= %d \n \n", PileVide(pile));
-
-
-}
-
-affichepile(pile);*/
 
 
     return 0;
